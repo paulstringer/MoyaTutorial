@@ -32,7 +32,12 @@ import Foundation
 
 struct SearchResult {
   let title: String
-  let imageURL: URL
+  let href: URL
+}
+
+struct Artist {
+  let name: String
+  let href: URL
 }
 
 struct ArtworkResult {

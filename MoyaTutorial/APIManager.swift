@@ -41,9 +41,9 @@ class ArtsyAPIManager {
   let baseURLString = "https://api.artsy.net/api/"
   
   func search(_ term: String, completion: @escaping APICompletion) {
-    let searchRequest = self.searchRequest(with: term)
+    let request = self.searchRequest(with: term)
     
-    searchRequest.responseJSON { (response ) in
+    request.responseJSON { (response ) in
       guard response.result.isSuccess else {
         completion(nil, nil); return
       }
@@ -77,22 +77,53 @@ class ArtsyAPIManager {
   
   //MARK: - Artworks
   
-  func artworks(for title: String, completion: @escaping APICompletion){
-    let searchRequest = self.searchRequest(with: title)
-    searchRequest.responseJSON { (response) in
-      guard response.result.isSuccess else {
+  func artworks(for result: SearchResult, completion: @escaping APICompletion){
+    
+    artworksRequest(for: result) { (request) in
+      
+      guard let request = request else {
         completion(nil, nil); return
       }
       
-      let results = self.searchResults(for: response)
-      completion(results, nil)
+      request.responseJSON { (response) in
+        guard response.result.isSuccess else {
+          completion(nil, nil); return
+        }
+        
+        let results = self.artworkResults(for: response)
+        completion(results, nil)
+      }
+      
     }
+    
   }
   
   private func artworkResults(for response: DataResponse<Any>) -> [ArtworkResult]? {
     let JSON = response.result.value as? [String:Any]
     let results = ArtsyAPIParser.artworkResults(for: JSON)
     return results
+  }
+  
+  private func artworksRequest(for result: SearchResult, completion: @escaping (DataRequest?) -> Swift.Void) {
+    let url = result.href
+    let request = Alamofire.request(url, method: .get, headers: ["X-Xapp-Token" : ArtsyAPIManager.ArtsyAuthToken])
+  
+    request.responseJSON { (response) in
+    
+      guard response.result.isSuccess else {
+        completion(nil); return
+      }
+      
+      let JSON = response.result.value as? [String:Any]
+      
+      guard let url = ArtsyAPIParser.artworksURL(for: JSON) else {
+        completion(nil); return
+      }
+      
+      let request = Alamofire.request(url, method: .get, headers: ["X-Xapp-Token" : ArtsyAPIManager.ArtsyAuthToken])
+      completion(request)
+    
+    }
   }
   
 }
@@ -108,22 +139,67 @@ class ImaggaAPIManager {
 
 private class ArtsyAPIParser {
   
-  static func searchResults(for JSON: [String:Any]?) -> [SearchResult]? {
+  static func searchResults(for JSON: [String:Any]?) -> [SearchResult] {
     let embedded = JSON?["_embedded"] as? [String:Any]
     let results = embedded?["results"] as? [ [String:Any] ]
     
-    let searchResults = results?.map { (result) -> SearchResult in
-      let aTitle = result["title"] as? String ?? ""
-      let aURL = URL(string: "http://www.apple.com")!
-      return SearchResult(title: aTitle, imageURL: aURL )
+    var searchResults = results?.map { (result) -> SearchResult? in
+      guard let title = result["title"] as? String,
+            let href = artistsHref(for: result) else {
+        return nil
+      }
+      return SearchResult(title: title, href: href)
     }
     
-    return searchResults ?? []
+    searchResults = searchResults?.filter({ (result) -> Bool in
+      return result != nil
+    })
+    
+    return searchResults as? [SearchResult] ?? []
+  }
+
+  static func artistsHref(for rawSearchResult: [String:Any]) -> URL? {
+    let links = rawSearchResult["_links"] as? [String:Any]
+    let link = links?["self"] as? [String:String]
+    let urlString = link?["href"] ?? ""
+    let href = URL(string: urlString)
+    return href
+  }
+  
+  static func artworksURL(for JSON: [String:Any]?) -> URL? {
+    
+    let links = JSON?["_links"] as? [String:Any]
+    let link = links?["artworks"] as? [String:String]
+    let urlString = link?["href"] ?? ""
+    return URL(string: urlString)
   }
   
   static func artworkResults(for JSON: [String:Any]?) -> [ArtworkResult]? {
-    fatalError("todo")
-    //        return [ArtworkResult(imageURL: URL(string: "http://www.apple.com")!)]
+    let embedded = JSON?["_embedded"] as? [String:Any]
+    let artworks = embedded?["artworks"] as? [ [String:Any] ]
+    
+    var results = artworks?.map { (result) -> ArtworkResult? in
+      guard let title = result["title"] as? String,
+            let links = result["_links"] as? [String:Any],
+            let image = links["image"] as? [String:Any],
+            var href = image["href"] as? String else {
+          return nil
+      }
+      
+      href = href.replacingOccurrences(of: "{image_version}", with: "tall")
+      let imageURL = URL(string: href)!
+      return ArtworkResult(title: title, imageURL: imageURL)
+    }
+    
+    results = results?.filter { (result) -> Bool in
+        return result != nil
+    }
+    
+    return results as? [ArtworkResult] ?? []
+      
+    
+    
+    
   }
   
 }

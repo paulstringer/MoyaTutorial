@@ -70,8 +70,9 @@ extension ArtSearchViewController: SearchResultsControllerDelegate {
   }
   
   private func loadArtworks(for result: SearchResult) {
-    ArtsyAPIManager().artworks(for: result.title) { (results, error) in
+    ArtsyAPIManager().artworks(for: result) { (results, error) in
       // ... now what, reload this table view with artworks
+      print(results ?? "")
     }
   }
   
