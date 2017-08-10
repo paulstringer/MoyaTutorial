@@ -86,7 +86,7 @@ extension ArtSearchViewController {
   }
   
   func addSearchController() {
-    searchResultsController = SearchResultsController.instantiateFromStoryboard()
+    searchResultsController = SearchResultsController.makeUsingMainStoryboard()
     searchResultsController.delegate = self
     
     searchController = UISearchController(searchResultsController: searchResultsController)
