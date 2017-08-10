@@ -9,7 +9,7 @@
 /* Begin PBXBuildFile section */
 		2FB00509054C6466BB137FA9 /* Pods_MoyaTutorial.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EC58E9A6A2E2B57107BFB4BE /* Pods_MoyaTutorial.framework */; };
 		8C4A48E41F38D3D000AC7991 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C4A48E31F38D3D000AC7991 /* AppDelegate.swift */; };
-		8C4A48E61F38D3D000AC7991 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C4A48E51F38D3D000AC7991 /* ViewController.swift */; };
+		8C4A48E61F38D3D000AC7991 /* ArtSearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C4A48E51F38D3D000AC7991 /* ArtSearchViewController.swift */; };
 		8C4A48E91F38D3D000AC7991 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8C4A48E71F38D3D000AC7991 /* Main.storyboard */; };
 		8C4A48EB1F38D3D000AC7991 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8C4A48EA1F38D3D000AC7991 /* Assets.xcassets */; };
 		8C4A48EE1F38D3D000AC7991 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8C4A48EC1F38D3D000AC7991 /* LaunchScreen.storyboard */; };
@@ -35,7 +35,7 @@
 		7C0377AE375043544D945DE5 /* Pods-MoyaTutorial.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MoyaTutorial.debug.xcconfig"; path = "Pods/Target Support Files/Pods-MoyaTutorial/Pods-MoyaTutorial.debug.xcconfig"; sourceTree = "<group>"; };
 		8C4A48E01F38D3D000AC7991 /* MoyaTutorial.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MoyaTutorial.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8C4A48E31F38D3D000AC7991 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		8C4A48E51F38D3D000AC7991 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		8C4A48E51F38D3D000AC7991 /* ArtSearchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtSearchViewController.swift; sourceTree = "<group>"; };
 		8C4A48E81F38D3D000AC7991 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		8C4A48EA1F38D3D000AC7991 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		8C4A48ED1F38D3D000AC7991 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -105,14 +105,14 @@
 			isa = PBXGroup;
 			children = (
 				8C4A48E31F38D3D000AC7991 /* AppDelegate.swift */,
-				8C4A48E51F38D3D000AC7991 /* ViewController.swift */,
+				8C4A48E51F38D3D000AC7991 /* ArtSearchViewController.swift */,
+				8C4A49071F399A9E00AC7991 /* SearchResultsController.swift */,
+				8C4A49031F38D3F300AC7991 /* APIManager.swift */,
+				8C4A49051F38D55200AC7991 /* Entities.swift */,
 				8C4A48E71F38D3D000AC7991 /* Main.storyboard */,
 				8C4A48EA1F38D3D000AC7991 /* Assets.xcassets */,
 				8C4A48EC1F38D3D000AC7991 /* LaunchScreen.storyboard */,
 				8C4A48EF1F38D3D000AC7991 /* Info.plist */,
-				8C4A49031F38D3F300AC7991 /* APIManager.swift */,
-				8C4A49051F38D55200AC7991 /* Entities.swift */,
-				8C4A49071F399A9E00AC7991 /* SearchResultsController.swift */,
 			);
 			path = MoyaTutorial;
 			sourceTree = "<group>";
@@ -340,7 +340,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8C4A49041F38D3F300AC7991 /* APIManager.swift in Sources */,
-				8C4A48E61F38D3D000AC7991 /* ViewController.swift in Sources */,
+				8C4A48E61F38D3D000AC7991 /* ArtSearchViewController.swift in Sources */,
 				8C4A49061F38D55200AC7991 /* Entities.swift in Sources */,
 				8C4A49081F399A9E00AC7991 /* SearchResultsController.swift in Sources */,
 				8C4A48E41F38D3D000AC7991 /* AppDelegate.swift in Sources */,
@@ -555,6 +555,7 @@
 				8C4A48FF1F38D3D100AC7991 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		8C4A49001F38D3D100AC7991 /* Build configuration list for PBXNativeTarget "MoyaTutorialTests" */ = {
 			isa = XCConfigurationList;
@@ -563,6 +564,7 @@
 				8C4A49021F38D3D100AC7991 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
