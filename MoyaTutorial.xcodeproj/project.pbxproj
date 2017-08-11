@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		2FB00509054C6466BB137FA9 /* Pods_MoyaTutorial.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EC58E9A6A2E2B57107BFB4BE /* Pods_MoyaTutorial.framework */; };
+		8C25AA371F3D8E6200D2EBA1 /* ArtworkViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C25AA361F3D8E6200D2EBA1 /* ArtworkViewController.swift */; };
 		8C4A48E41F38D3D000AC7991 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C4A48E31F38D3D000AC7991 /* AppDelegate.swift */; };
 		8C4A48E61F38D3D000AC7991 /* ArtSearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C4A48E51F38D3D000AC7991 /* ArtSearchViewController.swift */; };
 		8C4A48E91F38D3D000AC7991 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8C4A48E71F38D3D000AC7991 /* Main.storyboard */; };
@@ -33,6 +34,7 @@
 /* Begin PBXFileReference section */
 		09BD990D54AA66958D47995D /* Pods-MoyaTutorialTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MoyaTutorialTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-MoyaTutorialTests/Pods-MoyaTutorialTests.release.xcconfig"; sourceTree = "<group>"; };
 		7C0377AE375043544D945DE5 /* Pods-MoyaTutorial.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MoyaTutorial.debug.xcconfig"; path = "Pods/Target Support Files/Pods-MoyaTutorial/Pods-MoyaTutorial.debug.xcconfig"; sourceTree = "<group>"; };
+		8C25AA361F3D8E6200D2EBA1 /* ArtworkViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ArtworkViewController.swift; sourceTree = "<group>"; };
 		8C4A48E01F38D3D000AC7991 /* MoyaTutorial.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MoyaTutorial.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8C4A48E31F38D3D000AC7991 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		8C4A48E51F38D3D000AC7991 /* ArtSearchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtSearchViewController.swift; sourceTree = "<group>"; };
@@ -107,6 +109,7 @@
 				8C4A48E31F38D3D000AC7991 /* AppDelegate.swift */,
 				8C4A48E51F38D3D000AC7991 /* ArtSearchViewController.swift */,
 				8C4A49071F399A9E00AC7991 /* SearchResultsController.swift */,
+				8C25AA361F3D8E6200D2EBA1 /* ArtworkViewController.swift */,
 				8C4A49031F38D3F300AC7991 /* APIManager.swift */,
 				8C4A49051F38D55200AC7991 /* Entities.swift */,
 				8C4A48E71F38D3D000AC7991 /* Main.storyboard */,
@@ -340,6 +343,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8C4A49041F38D3F300AC7991 /* APIManager.swift in Sources */,
+				8C25AA371F3D8E6200D2EBA1 /* ArtworkViewController.swift in Sources */,
 				8C4A48E61F38D3D000AC7991 /* ArtSearchViewController.swift in Sources */,
 				8C4A49061F38D55200AC7991 /* Entities.swift in Sources */,
 				8C4A49081F399A9E00AC7991 /* SearchResultsController.swift in Sources */,

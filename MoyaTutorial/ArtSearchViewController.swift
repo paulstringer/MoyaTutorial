@@ -34,11 +34,36 @@ class ArtSearchViewController: UITableViewController {
   
   var searchController: UISearchController!
   var searchResultsController: SearchResultsController!
-  var artworks: [ArtworkResult] = []
+  var artworks: [ArtworkResult] = [] {
+    didSet {
+      self.tableView.reloadData()
+    }
+  }
   
   override func viewDidLoad() {
     addSearchController()
     layoutSearchBar()
+  }
+  
+  
+  override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+    
+    guard segue.identifier == "NEXT" else {
+      return
+    }
+    
+    let artwork = artworks[tableView.indexPathForSelectedRow!.row]
+    segue.destination.title = artwork.title
+    
+  }
+  
+  override func viewWillAppear(_ animated: Bool) {
+    deselectSelectedArtwork()
+  }
+  
+  private func deselectSelectedArtwork(){
+    guard let selectedIndexPath = tableView.indexPathForSelectedRow else { return }
+    tableView.deselectRow(at: selectedIndexPath, animated: true)
   }
   
 }
@@ -54,9 +79,17 @@ extension ArtSearchViewController: UISearchResultsUpdating  {
     }
     
     ArtsyAPIManager().search(searchBar.text!) { (results, error) in
+      guard let results = results else {
+        self.handleFailure(description: error); return
+      }
       self.searchResultsController.results = results as! [SearchResult]
     }
   }
+    
+    func handleFailure(description :String?) {
+      searchController.isActive = false
+      print("Network Error: \(description ?? "")")
+    }
   
 }
 
@@ -72,7 +105,11 @@ extension ArtSearchViewController: SearchResultsControllerDelegate {
   private func loadArtworks(for result: SearchResult) {
     ArtsyAPIManager().artworks(for: result) { (results, error) in
       // ... now what, reload this table view with artworks
-      print(results ?? "")
+      guard let results = results as? [ArtworkResult] else {
+        self.handleFailure(description: error); return
+      }
+      
+      self.artworks = results
     }
   }
   
@@ -111,7 +148,11 @@ extension ArtSearchViewController {
   
   override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
     let cell = tableView.dequeueReusableCell(withIdentifier: "CELL")!
-    cell.textLabel?.text = artworks[indexPath.row].title
+    
+    let artwork = artworks[indexPath.row]
+    cell.textLabel?.text = artwork.title
+    cell.detailTextLabel?.text = artwork.medium
+    
     return cell
   }
   

@@ -32,7 +32,8 @@ import Foundation
 import Alamofire
 
 typealias ResultList = [Any]
-typealias APICompletion = (ResultList?, NSError?) -> Swift.Void
+typealias APICompletion = (_ results: ResultList?, _ error: String?) -> Swift.Void
+typealias APIImageCompletion = (_ image: UIImage?, _ error: String?) -> Swift.Void
 
 class ArtsyAPIManager {
   
@@ -45,7 +46,7 @@ class ArtsyAPIManager {
     
     request.responseJSON { (response ) in
       guard response.result.isSuccess else {
-        completion(nil, nil); return
+        completion(nil, response.result.debugDescription); return
       }
       
       let results = self.searchResults(for: response)
@@ -65,13 +66,13 @@ class ArtsyAPIManager {
   
   private func searchRequest(with term: String) -> DataRequest {
     let searchURL = self.searchURL(with: term)
-    let request = Alamofire.request(searchURL, method: .get, headers: ["X-Xapp-Token" : ArtsyAPIManager.ArtsyAuthToken])
-    return request
+    return ArtsyAPIManager.authenticatedRequest(for: searchURL)
   }
   
   private func searchURL(with term: String)  -> URL {
     var components = URLComponents(string: baseURLString.appending("search"))!
-    components.queryItems = [URLQueryItem(name: "q", value: term.lowercased())]
+    let termSearchingArtistTypes = term.lowercased() + "+more:pagemap:metatags-og_type:artist"
+    components.queryItems = [URLQueryItem(name: "q", value: termSearchingArtistTypes)]
     return try! components.asURL()
   }
   
@@ -105,8 +106,8 @@ class ArtsyAPIManager {
   }
   
   private func artworksRequest(for result: SearchResult, completion: @escaping (DataRequest?) -> Swift.Void) {
-    let url = result.href
-    let request = Alamofire.request(url, method: .get, headers: ["X-Xapp-Token" : ArtsyAPIManager.ArtsyAuthToken])
+
+    let request = ArtsyAPIManager.authenticatedRequest(for: result.href)
   
     request.responseJSON { (response) in
     
@@ -120,11 +121,36 @@ class ArtsyAPIManager {
         completion(nil); return
       }
       
-      let request = Alamofire.request(url, method: .get, headers: ["X-Xapp-Token" : ArtsyAPIManager.ArtsyAuthToken])
+      
+      let request = ArtsyAPIManager.authenticatedRequest(for: url)
+      
       completion(request)
     
     }
   }
+  
+  //MARK: Artwork Image
+  
+  
+  func image(for artwork: ArtworkResult, completion: @escaping APIImageCompletion) {
+    
+    let request = Alamofire.download(artwork.imageURL)
+    request.responseData { (response) in
+      guard response.result.isSuccess else {
+        completion(nil, response.result.debugDescription)
+        return
+      }
+      let image = UIImage(data: response.value!)
+      completion(image, nil)
+    }
+  }
+
+  //MARK: Utilities
+  
+  private static func authenticatedRequest(for url: URL) -> DataRequest {
+    return Alamofire.request(url, method: .get, headers: ["X-Xapp-Token" : ArtsyAPIManager.ArtsyAuthToken])
+  }
+  
   
 }
 
@@ -144,7 +170,8 @@ private class ArtsyAPIParser {
     let results = embedded?["results"] as? [ [String:Any] ]
     
     var searchResults = results?.map { (result) -> SearchResult? in
-      guard let title = result["title"] as? String,
+      guard result["type"] as? String == "artist",
+            let title = result["title"] as? String,
             let href = artistsHref(for: result) else {
         return nil
       }
@@ -180,6 +207,7 @@ private class ArtsyAPIParser {
     
     var results = artworks?.map { (result) -> ArtworkResult? in
       guard let title = result["title"] as? String,
+            let medium = result["medium"] as? String,
             let links = result["_links"] as? [String:Any],
             let image = links["image"] as? [String:Any],
             var href = image["href"] as? String else {
@@ -188,7 +216,7 @@ private class ArtsyAPIParser {
       
       href = href.replacingOccurrences(of: "{image_version}", with: "tall")
       let imageURL = URL(string: href)!
-      return ArtworkResult(title: title, imageURL: imageURL)
+      return ArtworkResult(title: title, medium: medium, imageURL: imageURL)
     }
     
     results = results?.filter { (result) -> Bool in

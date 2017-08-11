@@ -28,24 +28,22 @@
  * THE SOFTWARE.
  */
 
-import Foundation
+import UIKit
 
-struct SearchResult {
-  let title: String
-  let href: URL
-}
+class ArtworkViewController: UIViewController {
+  
+  @IBOutlet var imageView: UIImageView!
+  var artwork: ArtworkResult!
+  
+  override func viewDidLoad() {
+    super.viewDidLoad()
+    loadArtImage()
+  }
+  
+  private func loadArtImage() {
+    ArtsyAPIManager().image(for: artwork) { (image, errorDescription) in
+      self.imageView.image = image
+    }
+  }
 
-struct Artist {
-  let name: String
-  let href: URL
-}
-
-struct ArtworkResult {
-  let title: String
-  let medium: String
-  let imageURL: URL
-}
-
-struct TagResult {
-  let tag: String
 }
