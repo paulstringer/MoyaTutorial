@@ -32,15 +32,35 @@ import UIKit
 
 class TagsViewController: UITableViewController {
 
-  var image: UIImage!
-  var tags: [TagResult] = []
+  var image: UIImage? {
+    didSet {
+      guard let image = image else { return }
+      ArtsyAPIManager().tags(for: image) { (results, error) in
+        guard let results = results as? [TagResult] else {
+          self.handleFailure(description: error)
+          return
+        }
+        self.tags = results
+      }
+    }
+  }
+  
+  var tags: [TagResult] = [] {
+    didSet {
+      self.tableView.reloadData()
+    }
+  }
 
 }
 
 extension TagsViewController {
   override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-    return tableView.dequeueReusableCell(withIdentifier: "CELL")!
+    let tag = tags[indexPath.row]
+    let cell = tableView.dequeueReusableCell(withIdentifier: "CELL")!
+    cell.textLabel?.text = tag.title
+    return cell
   }
+  
   override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
     return tags.count
   }

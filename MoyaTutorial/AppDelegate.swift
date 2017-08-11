@@ -34,3 +34,12 @@ import UIKit
 class AppDelegate: UIResponder, UIApplicationDelegate {
   var window: UIWindow?
 }
+
+extension UIViewController {
+  
+  func handleFailure(description :String?) {
+    let alert = UIAlertController(title: "Network Error", message: description, preferredStyle: .alert)
+    alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+    present(alert, animated: true, completion: nil)
+  }
+}

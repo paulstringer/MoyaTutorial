@@ -87,6 +87,45 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		8C25AA3C1F3E379300D2EBA1 /* View Controlllers */ = {
+			isa = PBXGroup;
+			children = (
+				8C4A48E51F38D3D000AC7991 /* ArtSearchViewController.swift */,
+				8C4A49071F399A9E00AC7991 /* SearchResultsController.swift */,
+				8C25AA361F3D8E6200D2EBA1 /* ArtworkViewController.swift */,
+				8C25AA381F3DE0DE00D2EBA1 /* TagsViewController.swift */,
+			);
+			name = "View Controlllers";
+			sourceTree = "<group>";
+		};
+		8C25AA3D1F3E379D00D2EBA1 /* API */ = {
+			isa = PBXGroup;
+			children = (
+				8C4A49031F38D3F300AC7991 /* APIManager.swift */,
+				8C25AA3A1F3E086F00D2EBA1 /* APIParser.swift */,
+			);
+			name = API;
+			sourceTree = "<group>";
+		};
+		8C25AA3E1F3E37AB00D2EBA1 /* Other */ = {
+			isa = PBXGroup;
+			children = (
+				8C4A48E31F38D3D000AC7991 /* AppDelegate.swift */,
+				8C4A49051F38D55200AC7991 /* Entities.swift */,
+			);
+			name = Other;
+			sourceTree = "<group>";
+		};
+		8C25AA3F1F3E37C100D2EBA1 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				8C4A48EA1F38D3D000AC7991 /* Assets.xcassets */,
+				8C4A48EC1F38D3D000AC7991 /* LaunchScreen.storyboard */,
+				8C4A48EF1F38D3D000AC7991 /* Info.plist */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
 		8C4A48D71F38D3D000AC7991 = {
 			isa = PBXGroup;
 			children = (
@@ -110,18 +149,11 @@
 		8C4A48E21F38D3D000AC7991 /* MoyaTutorial */ = {
 			isa = PBXGroup;
 			children = (
-				8C4A48E31F38D3D000AC7991 /* AppDelegate.swift */,
-				8C4A48E51F38D3D000AC7991 /* ArtSearchViewController.swift */,
-				8C4A49071F399A9E00AC7991 /* SearchResultsController.swift */,
-				8C25AA361F3D8E6200D2EBA1 /* ArtworkViewController.swift */,
-				8C25AA381F3DE0DE00D2EBA1 /* TagsViewController.swift */,
-				8C4A49031F38D3F300AC7991 /* APIManager.swift */,
-				8C25AA3A1F3E086F00D2EBA1 /* APIParser.swift */,
-				8C4A49051F38D55200AC7991 /* Entities.swift */,
 				8C4A48E71F38D3D000AC7991 /* Main.storyboard */,
-				8C4A48EA1F38D3D000AC7991 /* Assets.xcassets */,
-				8C4A48EC1F38D3D000AC7991 /* LaunchScreen.storyboard */,
-				8C4A48EF1F38D3D000AC7991 /* Info.plist */,
+				8C25AA3C1F3E379300D2EBA1 /* View Controlllers */,
+				8C25AA3D1F3E379D00D2EBA1 /* API */,
+				8C25AA3E1F3E37AB00D2EBA1 /* Other */,
+				8C25AA3F1F3E37C100D2EBA1 /* Supporting Files */,
 			);
 			path = MoyaTutorial;
 			sourceTree = "<group>";

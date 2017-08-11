@@ -33,10 +33,8 @@ import Foundation
 class APIParser {
   
   static func searchResults(for JSON: [String:Any]?) -> [SearchResult] {
-    let embedded = JSON?["_embedded"] as? [String:Any]
-    let results = embedded?["results"] as? [ [String:Any] ]
-    
-    var searchResults = results?.map { (result) -> SearchResult? in
+    let results = embeddedResults(JSON, key: "results")
+    let searchResults = results?.flatMap { result -> SearchResult? in
       guard result["type"] as? String == "artist",
         let title = result["title"] as? String,
         let href = artistsHref(for: result) else {
@@ -45,11 +43,7 @@ class APIParser {
       return SearchResult(title: title, href: href)
     }
     
-    searchResults = searchResults?.filter({ (result) -> Bool in
-      return result != nil
-    })
-    
-    return searchResults as? [SearchResult] ?? []
+    return searchResults ?? []
   }
   
   static func artistsHref(for rawSearchResult: [String:Any]) -> URL? {
@@ -61,18 +55,15 @@ class APIParser {
   }
   
   static func artworksURL(for JSON: [String:Any]?) -> URL? {
-    
     let links = JSON?["_links"] as? [String:Any]
     let link = links?["artworks"] as? [String:String]
     let urlString = link?["href"] ?? ""
     return URL(string: urlString)
   }
   
-  static func artworkResults(for JSON: [String:Any]?) -> [ArtworkResult]? {
-    let embedded = JSON?["_embedded"] as? [String:Any]
-    let artworks = embedded?["artworks"] as? [ [String:Any] ]
-    
-    var results = artworks?.map { (result) -> ArtworkResult? in
+  static func artworkResults(for JSON: [String:Any]?) -> [ArtworkResult] {
+    let artworks = embeddedResults(JSON, key: "artworks")
+    let results = artworks?.flatMap { result -> ArtworkResult? in
       guard let title = result["title"] as? String,
         let medium = result["medium"] as? String,
         let links = result["_links"] as? [String:Any],
@@ -86,15 +77,56 @@ class APIParser {
       return ArtworkResult(title: title, medium: medium, imageURL: imageURL)
     }
     
-    results = results?.filter { (result) -> Bool in
-      return result != nil
-    }
-    
-    return results as? [ArtworkResult] ?? []
+    return results ?? []
   }
   
-  static func tagResult(for JSON: [String:Any]?) -> [TagResult] {
-    return [TagResult(tag: "tag1"), TagResult(tag: "tag2")]
+  static func tagResults(for JSON: [String:Any]?) -> [TagResult] {
+
+    guard let results = JSON?["results"] as? [[String: Any]],
+          let firstObject = results.first,
+          let info = firstObject["tags"] as? [[String: Any]] else {
+            print("Invalid tag information received from Imagga service")
+            return []
+    }
+
+    let value = info.flatMap { (tag) -> TagResult in
+      return TagResult(title: tag["tag"] as! String)
+    }
+    
+    return value
+  }
+  
+  static func colorResults(for JSON: [String:Any]?) -> [ColorResult] {
+
+    guard let results = JSON?["results"] as? [[String: Any]],
+          let firstObject = results.first,
+          let info = firstObject["info"] as? [String: Any],
+          let imageColors = info["image_colors"] as? [[String: Any]] else {
+            print("Invalid color information received from service")
+            return []
+    }
+
+    let colors = imageColors.flatMap({ (dict) -> (r: Int, g: Int, b: Int, name: String)? in
+      guard let r = dict["r"] as? String,
+        let g = dict["g"] as? String,
+        let b = dict["b"] as? String,
+        let name = dict["closest_palette_color"] as? String else {
+          return nil
+      }
+      return (Int(r)!, Int(g)!, Int(b)!, name)
+    })
+
+    let value = colors.flatMap { (color) -> ColorResult in
+      return ColorResult(title: color.name, colorR: color.r, colorG: color.g, colorB: color.b)
+    }
+    
+    return value
+  }
+  
+  static private func embeddedResults(_ JSON: [String:Any]?, key: String) -> [ [String:Any] ]? {
+    let embedded = JSON?["_embedded"] as? [String:Any]
+    let results = embedded?[key] as? [ [String:Any] ]
+    return results
   }
   
 }

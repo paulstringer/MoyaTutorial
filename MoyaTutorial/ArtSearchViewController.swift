@@ -84,17 +84,11 @@ extension ArtSearchViewController: UISearchResultsUpdating  {
     
     ArtsyAPIManager().search(searchBar.text!) { (results, error) in
       guard let results = results else {
+        self.searchController.isActive = false
         self.handleFailure(description: error); return
       }
       self.searchResultsController.results = results as! [SearchResult]
     }
-  }
-    
-  func handleFailure(description :String?) {
-    searchController.isActive = false
-    let alert = UIAlertController(title: "Network Error", message: description, preferredStyle: .alert)
-    alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-    present(alert, animated: true, completion: nil)
   }
   
 }

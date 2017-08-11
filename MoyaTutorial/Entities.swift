@@ -28,7 +28,7 @@
  * THE SOFTWARE.
  */
 
-import Foundation
+import UIKit
 
 struct SearchResult {
   let title: String
@@ -46,6 +46,13 @@ struct ArtworkResult {
   let imageURL: URL
 }
 
+struct ColorResult {
+  let title: String
+  let colorR: Int
+  let colorG: Int
+  let colorB: Int
+}
+
 struct TagResult {
-  let tag: String
+  let title: String
 }
