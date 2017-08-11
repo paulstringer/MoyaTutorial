@@ -37,51 +37,29 @@ typealias APIImageCompletion = (_ image: UIImage?, _ error: String?) -> Swift.Vo
 
 class ArtsyAPIManager {
   
-  static let ArtsyAuthToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IiIsImV4cCI6MTUwMjg3Mzc5MywiaWF0IjoxNTAyMjY4OTkzLCJhdWQiOiI1OThhY2U0MDJhODkzYTU5NWM0MWJkYWMiLCJpc3MiOiJHcmF2aXR5IiwianRpIjoiNTk4YWNlNDE3NjIyZGQ1ZmI2MWUxMGYxIn0.fwDgu3gi6xa3s6X3YadrKJjoLiciDLP7-HUPk2j0dGM"
-  
-  let baseURLString = "https://api.artsy.net/api/"
+  // MARK: SEARCH
   
   func search(_ term: String, completion: @escaping APICompletion) {
-    let request = self.searchRequest(with: term)
+    
+    let request = APIRequest.searchRequest(with: term)
     
     request.responseJSON { (response ) in
       guard response.result.isSuccess else {
         completion(nil, response.result.debugDescription); return
       }
       
-      let results = self.searchResults(for: response)
+      let JSON = response.result.value as? [String:Any]
+      let results = APIParser.searchResults(for: JSON)
       completion(results, nil)
     }
     
     
   }
   
-  // MARK: SEARCH
-  
-  private func searchResults(for response :DataResponse<Any>) -> [SearchResult]? {
-    let JSON = response.result.value as? [String:Any]
-    let results = ArtsyAPIParser.searchResults(for: JSON)
-    return results
-  }
-  
-  private func searchRequest(with term: String) -> DataRequest {
-    let searchURL = self.searchURL(with: term)
-    return ArtsyAPIManager.authenticatedRequest(for: searchURL)
-  }
-  
-  private func searchURL(with term: String)  -> URL {
-    var components = URLComponents(string: baseURLString.appending("search"))!
-    let termSearchingArtistTypes = term.lowercased() + "+more:pagemap:metatags-og_type:artist"
-    components.queryItems = [URLQueryItem(name: "q", value: termSearchingArtistTypes)]
-    return try! components.asURL()
-  }
-  
-  //MARK: - Artworks
+  //MARK: - ARTWORKS
   
   func artworks(for result: SearchResult, completion: @escaping APICompletion){
-    
-    artworksRequest(for: result) { (request) in
-      
+    APIRequest.artworksRequest(for: result) { (request) in
       guard let request = request else {
         completion(nil, nil); return
       }
@@ -91,46 +69,15 @@ class ArtsyAPIManager {
           completion(nil, nil); return
         }
         
-        let results = self.artworkResults(for: response)
+        let JSON = response.result.value as? [String:Any]
+        let results = APIParser.artworkResults(for: JSON)
         completion(results, nil)
       }
-      
     }
     
   }
-  
-  private func artworkResults(for response: DataResponse<Any>) -> [ArtworkResult]? {
-    let JSON = response.result.value as? [String:Any]
-    let results = ArtsyAPIParser.artworkResults(for: JSON)
-    return results
-  }
-  
-  private func artworksRequest(for result: SearchResult, completion: @escaping (DataRequest?) -> Swift.Void) {
 
-    let request = ArtsyAPIManager.authenticatedRequest(for: result.href)
-  
-    request.responseJSON { (response) in
-    
-      guard response.result.isSuccess else {
-        completion(nil); return
-      }
-      
-      let JSON = response.result.value as? [String:Any]
-      
-      guard let url = ArtsyAPIParser.artworksURL(for: JSON) else {
-        completion(nil); return
-      }
-      
-      
-      let request = ArtsyAPIManager.authenticatedRequest(for: url)
-      
-      completion(request)
-    
-    }
-  }
-  
-  //MARK: Artwork Image
-  
+  //MARK: IMAGE
   
   func image(for artwork: ArtworkResult, completion: @escaping APIImageCompletion) {
     
@@ -145,98 +92,99 @@ class ArtsyAPIManager {
     }
   }
 
-  //MARK: Utilities
-  
-  private static func authenticatedRequest(for url: URL) -> DataRequest {
-    return Alamofire.request(url, method: .get, headers: ["X-Xapp-Token" : ArtsyAPIManager.ArtsyAuthToken])
-  }
-  
-  
 }
 
 class ImaggaAPIManager {
   
-  func tags(for image: NSData, completion: APICompletion) {
-    let results = ImaggaAPIParser.tagResult(for: nil)
-    completion(results, nil)
+  //MARK: - Tags
+  
+  func tags(for image: UIImage, completion: @escaping APICompletion) {
+    
+    guard let data = UIImageJPEGRepresentation(image, 1.0) else {
+      fatalError()
+    }
+    
+    let url = try! "http://imagga.com/upload/blah".asURL()
+    
+    let request = Alamofire.upload(data, to: url, headers: ApiAuthClient.Imagga.authenticationHeaders)
+    request.validate().responseJSON { (response) in
+      guard response.result.isSuccess else {
+        completion(nil, response.debugDescription); return
+      }
+      let tags = APIParser.tagResult(for: response.value as? [String:Any])
+      completion(tags, nil)
+    }
   }
   
 }
 
-private class ArtsyAPIParser {
+fileprivate struct APIRequest {
   
-  static func searchResults(for JSON: [String:Any]?) -> [SearchResult] {
-    let embedded = JSON?["_embedded"] as? [String:Any]
-    let results = embedded?["results"] as? [ [String:Any] ]
-    
-    var searchResults = results?.map { (result) -> SearchResult? in
-      guard result["type"] as? String == "artist",
-            let title = result["title"] as? String,
-            let href = artistsHref(for: result) else {
-        return nil
-      }
-      return SearchResult(title: title, href: href)
-    }
-    
-    searchResults = searchResults?.filter({ (result) -> Bool in
-      return result != nil
-    })
-    
-    return searchResults as? [SearchResult] ?? []
-  }
-
-  static func artistsHref(for rawSearchResult: [String:Any]) -> URL? {
-    let links = rawSearchResult["_links"] as? [String:Any]
-    let link = links?["self"] as? [String:String]
-    let urlString = link?["href"] ?? ""
-    let href = URL(string: urlString)
-    return href
+  private static let artsyBaseURLString = "https://api.artsy.net/api/"
+  
+  //MARK: - SEARCH
+  
+  static func searchRequest(with term: String) -> DataRequest {
+    let searchURL = self.searchURL(with: term)
+    return APIRequest.authenticatedRequest(for: searchURL)
   }
   
-  static func artworksURL(for JSON: [String:Any]?) -> URL? {
-    
-    let links = JSON?["_links"] as? [String:Any]
-    let link = links?["artworks"] as? [String:String]
-    let urlString = link?["href"] ?? ""
-    return URL(string: urlString)
+  private static func searchURL(with term: String)  -> URL {
+    var components = URLComponents(string: APIRequest.artsyBaseURLString.appending("search"))!
+    let termSearchingArtistTypes = term.lowercased() + "+more:pagemap:metatags-og_type:artist"
+    components.queryItems = [URLQueryItem(name: "q", value: termSearchingArtistTypes)]
+    return try! components.asURL()
   }
   
-  static func artworkResults(for JSON: [String:Any]?) -> [ArtworkResult]? {
-    let embedded = JSON?["_embedded"] as? [String:Any]
-    let artworks = embedded?["artworks"] as? [ [String:Any] ]
+  //MARK: - ARTWORKS
+  
+  static func artworksRequest(for result: SearchResult, completion: @escaping (DataRequest?) -> Swift.Void) {
     
-    var results = artworks?.map { (result) -> ArtworkResult? in
-      guard let title = result["title"] as? String,
-            let medium = result["medium"] as? String,
-            let links = result["_links"] as? [String:Any],
-            let image = links["image"] as? [String:Any],
-            var href = image["href"] as? String else {
-          return nil
+    let request = APIRequest.authenticatedRequest(for: result.href)
+    
+    request.responseJSON { (response) in
+      
+      guard response.result.isSuccess else {
+        completion(nil); return
       }
       
-      href = href.replacingOccurrences(of: "{image_version}", with: "tall")
-      let imageURL = URL(string: href)!
-      return ArtworkResult(title: title, medium: medium, imageURL: imageURL)
-    }
-    
-    results = results?.filter { (result) -> Bool in
-        return result != nil
-    }
-    
-    return results as? [ArtworkResult] ?? []
+      let JSON = response.result.value as? [String:Any]
       
-    
-    
-    
+      guard let url = APIParser.artworksURL(for: JSON) else {
+        completion(nil); return
+      }
+      
+      
+      let request = APIRequest.authenticatedRequest(for: url)
+      
+      completion(request)
+      
+    }
+  }
+  
+  //MARK: - PRIVATE UTILITIES
+  
+  private static func authenticatedRequest(for url: URL, client: ApiAuthClient = .Artsy) -> DataRequest {
+    return Alamofire.request(url, method: .get, headers: client.authenticationHeaders)
+  }
+  
+  
+}
+
+private enum ApiAuthClient {
+  case Artsy
+  case Imagga
+  
+  var authenticationHeaders: [String:String] {
+    switch self {
+    case .Artsy:
+      return ["X-Xapp-Token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IiIsImV4cCI6MTUwMjg3Mzc5MywiaWF0IjoxNTAyMjY4OTkzLCJhdWQiOiI1OThhY2U0MDJhODkzYTU5NWM0MWJkYWMiLCJpc3MiOiJHcmF2aXR5IiwianRpIjoiNTk4YWNlNDE3NjIyZGQ1ZmI2MWUxMGYxIn0.fwDgu3gi6xa3s6X3YadrKJjoLiciDLP7-HUPk2j0dGM"]
+    case .Imagga:
+      return ["X-Xapp-Token": ""]
+    }
   }
   
 }
 
 
-private class ImaggaAPIParser {
-  
-  static func tagResult(for data: NSData?) -> [TagResult] {
-    return [TagResult(tag: "tag1"), TagResult(tag: "tag2")]
-  }
-  
-}
+

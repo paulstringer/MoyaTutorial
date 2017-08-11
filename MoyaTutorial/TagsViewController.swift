@@ -30,49 +30,18 @@
 
 import UIKit
 
-class ArtworkViewController: UIViewController {
-  
-  @IBOutlet var segmentedControl: UISegmentedControl!
-  @IBOutlet var imageView: UIImageView!
-  @IBOutlet var tagsView: UIView!
-  var tagsViewController: TagsViewController!
-  
-  var artwork: ArtworkResult!
-  
-  override func viewDidLoad() {
-    super.viewDidLoad()
-    loadArtImage()
-  }
-  
-  override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-    tagsViewController = segue.destination as! TagsViewController
-  }
-  
-  private func loadArtImage() {
-    ArtsyAPIManager().image(for: artwork) { (image, errorDescription) in
-      self.segmentedControl.setEnabled(true, forSegmentAt: 1)
-      self.updateImage(with: image)
-    }
-  }
-  
-  private func updateImage(with image: UIImage?) {
-    self.imageView.image = image
-    self.tagsViewController.image = self.imageView.image
-  }
-  
-  @IBAction func segmentedControlValueChanged(sender: UISegmentedControl) {
-    switch sender.selectedSegmentIndex {
-    case 0:
-      imageView.isHidden = false
-      tagsView.isHidden = true
-      return
-    case 1:
-      imageView.isHidden = true
-      tagsView.isHidden = false
-      return
-    default:
-      return
-    }
-  }
+class TagsViewController: UITableViewController {
 
+  var image: UIImage!
+  var tags: [TagResult] = []
+
+}
+
+extension TagsViewController {
+  override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    return tableView.dequeueReusableCell(withIdentifier: "CELL")!
+  }
+  override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    return tags.count
+  }
 }

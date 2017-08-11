@@ -46,23 +46,11 @@ class ArtSearchViewController: UITableViewController {
     layoutSearchBar()
   }
   
-  
   override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-    
-    guard segue.identifier == "NEXT" else {
-      return
-    }
-    
-    guard let destination = segue.destination as? ArtworkViewController else {
-      return
-    }
-    
-    
+    let destination = segue.destination as! ArtworkViewController
     let artwork = artworks[tableView.indexPathForSelectedRow!.row]
-    
     destination.title = artwork.title
     destination.artwork = artwork
-    
   }
   
   override func viewWillAppear(_ animated: Bool) {
@@ -104,7 +92,9 @@ extension ArtSearchViewController: UISearchResultsUpdating  {
     
   func handleFailure(description :String?) {
     searchController.isActive = false
-    print("Network Error: \(description ?? "")")
+    let alert = UIAlertController(title: "Network Error", message: description, preferredStyle: .alert)
+    alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+    present(alert, animated: true, completion: nil)
   }
   
 }
@@ -120,11 +110,9 @@ extension ArtSearchViewController: SearchResultsControllerDelegate {
   
   private func loadArtworks(for result: SearchResult) {
     ArtsyAPIManager().artworks(for: result) { (results, error) in
-      // ... now what, reload this table view with artworks
       guard let results = results as? [ArtworkResult] else {
         self.handleFailure(description: error); return
       }
-      
       self.artworks = results
     }
   }
