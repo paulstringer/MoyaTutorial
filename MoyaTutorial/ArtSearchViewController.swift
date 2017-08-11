@@ -37,6 +37,7 @@ class ArtSearchViewController: UITableViewController {
   var artworks: [ArtworkResult] = [] {
     didSet {
       self.tableView.reloadData()
+      showEmptyResultsUIIfNeeded()
     }
   }
   
@@ -52,8 +53,15 @@ class ArtSearchViewController: UITableViewController {
       return
     }
     
+    guard let destination = segue.destination as? ArtworkViewController else {
+      return
+    }
+    
+    
     let artwork = artworks[tableView.indexPathForSelectedRow!.row]
-    segue.destination.title = artwork.title
+    
+    destination.title = artwork.title
+    destination.artwork = artwork
     
   }
   
@@ -64,6 +72,14 @@ class ArtSearchViewController: UITableViewController {
   private func deselectSelectedArtwork(){
     guard let selectedIndexPath = tableView.indexPathForSelectedRow else { return }
     tableView.deselectRow(at: selectedIndexPath, animated: true)
+  }
+  
+  private func showEmptyResultsUIIfNeeded() {
+    if (artworks.count == 0) {
+      let controller = UIAlertController(title: nil, message: "No Artworks Found", preferredStyle: .alert)
+      controller.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+      present(controller, animated: true, completion: nil)
+    }
   }
   
 }
@@ -86,10 +102,10 @@ extension ArtSearchViewController: UISearchResultsUpdating  {
     }
   }
     
-    func handleFailure(description :String?) {
-      searchController.isActive = false
-      print("Network Error: \(description ?? "")")
-    }
+  func handleFailure(description :String?) {
+    searchController.isActive = false
+    print("Network Error: \(description ?? "")")
+  }
   
 }
 

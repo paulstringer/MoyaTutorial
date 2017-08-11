@@ -42,6 +42,7 @@ class ArtworkViewController: UIViewController {
   
   private func loadArtImage() {
     ArtsyAPIManager().image(for: artwork) { (image, errorDescription) in
+      print(errorDescription)
       self.imageView.image = image
     }
   }

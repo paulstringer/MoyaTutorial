@@ -134,7 +134,7 @@ class ArtsyAPIManager {
   
   func image(for artwork: ArtworkResult, completion: @escaping APIImageCompletion) {
     
-    let request = Alamofire.download(artwork.imageURL)
+    let request = Alamofire.request(artwork.imageURL)
     request.responseData { (response) in
       guard response.result.isSuccess else {
         completion(nil, response.result.debugDescription)
