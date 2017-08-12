@@ -30,6 +30,7 @@
 
 import Foundation
 import Alamofire
+import Moya
 
 typealias ResultList = [Any]
 typealias APICompletion = (_ results: ResultList?, _ error: String?) -> Swift.Void
@@ -38,13 +39,25 @@ typealias APIImageCompletion = (_ image: UIImage?, _ error: String?) -> Swift.Vo
 class ArtsyAPIManager {
   
   // MARK: SEARCH
+  var provider = MoyaProvider<ArtService>()
   
   func search(_ term: String, completion: @escaping APICompletion) {
-    let request = APIRequest.searchRequest(with: term)
-    
-    request.responseJSON(completionHandler: ArtsyAPIManager.responseHandler(using: {(JSON) in
-      return APIParser.searchResults(for: JSON)
-    }, completion: completion))
+    provider.request(.search(term: term)) { result in
+      switch result {
+      case let .success(moyaResponse):
+        do {
+          _ = try moyaResponse.filterSuccessfulStatusCodes()
+          let JSON = try moyaResponse.mapJSON() as? [String:Any]
+          let results = APIParser.searchResults(for: JSON)
+          completion(results, nil)
+        }
+        catch {
+          completion(nil, error.localizedDescription)
+        }
+      case let .failure(error):
+        completion(nil, error.localizedDescription)
+      }
+    }
   }
   
   //MARK: - ARTWORKS
