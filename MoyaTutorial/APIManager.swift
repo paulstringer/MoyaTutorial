@@ -38,8 +38,11 @@ typealias APIImageCompletion = (_ image: UIImage?, _ error: String?) -> Swift.Vo
 
 class ArtsyAPIManager {
   
+  // MARK: MOYA
+  let provider = MoyaProvider<ArtService>(plugins: [ArtsyAuthPlugin(token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IiIsImV4cCI6MTUwMjg3Mzc5MywiaWF0IjoxNTAyMjY4OTkzLCJhdWQiOiI1OThhY2U0MDJhODkzYTU5NWM0MWJkYWMiLCJpc3MiOiJHcmF2aXR5IiwianRpIjoiNTk4YWNlNDE3NjIyZGQ1ZmI2MWUxMGYxIn0.fwDgu3gi6xa3s6X3YadrKJjoLiciDLP7-HUPk2j0dGM")])
+  
   // MARK: SEARCH
-  var provider = MoyaProvider<ArtService>()
+  
   
   func search(_ term: String, completion: @escaping APICompletion) {
     provider.request(.search(term: term)) { result in

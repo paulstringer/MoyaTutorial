@@ -6,7 +6,7 @@ target 'MoyaTutorial' do
   use_frameworks!
 
   # Pods for MoyaTutorial
-  pod 'Moya', '9.0.0-alpha.1'
+  pod 'Moya'
   
   target 'MoyaTutorialTests' do
     inherit! :search_paths

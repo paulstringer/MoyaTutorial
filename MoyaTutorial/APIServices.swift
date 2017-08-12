@@ -33,9 +33,20 @@ import Moya
 
 enum ArtService {
   case search(term: String)
+//  case artworks(href :URL)
 }
 
-extension ArtService: TargetType {
+struct ArtsyAuthPlugin: PluginType {
+  let token: String
+  
+  func prepare(_ request: URLRequest, target: TargetType) -> URLRequest {
+    var request = request
+    request.addValue(token, forHTTPHeaderField: "X-Xapp-Token")
+    return request
+  }
+}
+
+extension ArtService: TargetType, AccessTokenAuthorizable {
   
   var baseURL: URL {
     return try! "https://api.artsy.net/api/".asURL()
@@ -84,9 +95,10 @@ extension ArtService: TargetType {
     }
   }
   
-  var headers: [String: String]? {
-    return ["X-Xapp-Token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IiIsImV4cCI6MTUwMjg3Mzc5MywiaWF0IjoxNTAyMjY4OTkzLCJhdWQiOiI1OThhY2U0MDJhODkzYTU5NWM0MWJkYWMiLCJpc3MiOiJHcmF2aXR5IiwianRpIjoiNTk4YWNlNDE3NjIyZGQ1ZmI2MWUxMGYxIn0.fwDgu3gi6xa3s6X3YadrKJjoLiciDLP7-HUPk2j0dGM"]
+  var shouldAuthorize: Bool {
+    return true
   }
+  
 }
 
 extension ArtService {
