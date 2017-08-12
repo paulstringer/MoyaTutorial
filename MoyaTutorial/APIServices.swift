@@ -33,7 +33,7 @@ import Moya
 
 enum ArtService {
   case search(term: String)
-//  case artworks(href :URL)
+  case passthrough(href: URL)
 }
 
 struct ArtsyAuthPlugin: PluginType {
@@ -56,12 +56,16 @@ extension ArtService: TargetType, AccessTokenAuthorizable {
     switch self {
     case .search:
       return "/search"
+    case .passthrough:
+      return ""
     }
   }
   
   var method: Moya.Method {
     switch self {
     case .search:
+      return .get
+    case .passthrough:
       return .get
     }
   }
@@ -71,6 +75,8 @@ extension ArtService: TargetType, AccessTokenAuthorizable {
     case .search(var term):
       term = term.lowercased() + "+more:pagemap:metatags-og_type:artist"
       return ["q" : term.lowercased()]
+    case .passthrough:
+      return nil
     }
   }
   
@@ -78,11 +84,15 @@ extension ArtService: TargetType, AccessTokenAuthorizable {
     switch self {
     case .search:
       return URLEncoding.queryString
+    case .passthrough:
+      return URLEncoding.default
     }
   }
   
   var sampleData: Data {
     switch self {
+    case .passthrough:
+      return Data()
     default:
       return sampleData(forResource: "\(self)")
     }

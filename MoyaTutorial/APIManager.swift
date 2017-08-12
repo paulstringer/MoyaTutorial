@@ -36,13 +36,21 @@ typealias ResultList = [Any]
 typealias APICompletion = (_ results: ResultList?, _ error: String?) -> Swift.Void
 typealias APIImageCompletion = (_ image: UIImage?, _ error: String?) -> Swift.Void
 
+private let endpointClosure = { (target: ArtService) -> Endpoint<ArtService> in
+  switch target {
+  case let .passthrough(href):
+    return Endpoint<ArtService>(url: href.absoluteString, sampleResponseClosure: {.networkResponse(200, target.sampleData)})
+  default:
+    return MoyaProvider.defaultEndpointMapping(for: target)
+  }
+}
+
 class ArtsyAPIManager {
   
   // MARK: MOYA
-  let provider = MoyaProvider<ArtService>(plugins: [ArtsyAuthPlugin(token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IiIsImV4cCI6MTUwMjg3Mzc5MywiaWF0IjoxNTAyMjY4OTkzLCJhdWQiOiI1OThhY2U0MDJhODkzYTU5NWM0MWJkYWMiLCJpc3MiOiJHcmF2aXR5IiwianRpIjoiNTk4YWNlNDE3NjIyZGQ1ZmI2MWUxMGYxIn0.fwDgu3gi6xa3s6X3YadrKJjoLiciDLP7-HUPk2j0dGM")])
+  let provider = MoyaProvider<ArtService>(endpointClosure: endpointClosure, plugins: [ArtsyAuthPlugin(token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IiIsImV4cCI6MTUwMjg3Mzc5MywiaWF0IjoxNTAyMjY4OTkzLCJhdWQiOiI1OThhY2U0MDJhODkzYTU5NWM0MWJkYWMiLCJpc3MiOiJHcmF2aXR5IiwianRpIjoiNTk4YWNlNDE3NjIyZGQ1ZmI2MWUxMGYxIn0.fwDgu3gi6xa3s6X3YadrKJjoLiciDLP7-HUPk2j0dGM")])
   
   // MARK: SEARCH
-  
   
   func search(_ term: String, completion: @escaping APICompletion) {
     provider.request(.search(term: term)) { result in
@@ -66,15 +74,44 @@ class ArtsyAPIManager {
   //MARK: - ARTWORKS
   
   func artworks(for result: SearchResult, completion: @escaping APICompletion) {
-    APIRequest.artworksRequest(for: result, completion: { (request) in
-      guard let request = request else {
-        completion(nil, nil); return
+    
+    // 1. Fetch the endpoint for the Result
+    
+    provider.request(.passthrough(href: result.href)) { result in
+      switch result {
+      case let .success(moyaResponse):
+        do {
+          
+          // 2. Extract the artworks URL for the artist
+          
+          _ = try moyaResponse.filterSuccessfulStatusCodes()
+          let JSON = try moyaResponse.mapJSON() as? [String:Any]
+          let artworksURL = APIParser.artworksURL(for: JSON)!
+          
+          // 3. Fetch the artworks
+          
+          self.provider.request(.passthrough(href: artworksURL)) { result in
+            switch result {
+            case let .success(moyaResponse):
+              do {
+                _ = try moyaResponse.filterSuccessfulStatusCodes()
+                let JSON = try moyaResponse.mapJSON() as? [String:Any]
+                let results = APIParser.artworkResults(for: JSON)
+                completion(results, nil)
+              } catch {
+                completion(nil, error.localizedDescription)
+              }
+            case let .failure(error):
+              completion(nil, error.localizedDescription)
+            }
+          }
+        } catch {
+          completion(nil, error.localizedDescription)
+        }
+      case let .failure(error):
+        completion(nil, error.localizedDescription)
       }
-      
-      request.responseJSON(completionHandler: ArtsyAPIManager.responseHandler(using: {(JSON) in
-        return APIParser.artworkResults(for: JSON)
-      }, completion: completion))
-    })
+    }
   }
   
   //MARK: IMAGE
@@ -157,36 +194,6 @@ class ArtsyAPIManager {
 }
 
 fileprivate struct APIRequest {
-  
-  //MARK: - SEARCH
-  
-  static func searchRequest(with term: String) -> DataRequest {
-    let termSearchingArtistTypes = term.lowercased() + "+more:pagemap:metatags-og_type:artist"
-    let url = try! "https://api.artsy.net/api/search?q=\(termSearchingArtistTypes)".asURL()
-    return APIRequest.authenticatedRequest(for: url)
-  }
-  
-  //MARK: - ARTWORKS
-  
-  static func artworksRequest(for result: SearchResult, completion: @escaping (DataRequest?) -> Swift.Void) {
-    
-    let request = APIRequest.authenticatedRequest(for: result.href)
-    request.responseJSON { (response) in
-      
-      guard response.result.isSuccess else {
-        completion(nil); return
-      }
-      
-      let JSON = response.result.value as? [String:Any]
-      guard let url = APIParser.artworksURL(for: JSON) else {
-        completion(nil); return
-      }
-      
-      let request = APIRequest.authenticatedRequest(for: url)
-      completion(request)
-      
-    }
-  }
   
   //MARK: - TAGS
   
