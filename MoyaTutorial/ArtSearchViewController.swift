@@ -34,16 +34,16 @@ class ArtSearchViewController: UITableViewController {
   
   var searchController: UISearchController!
   var searchResultsController: SearchResultsController!
-  var artworks: [ArtworkResult] = [] {
+  var artworks: [Artwork] = [] {
     didSet {
       self.tableView.reloadData()
-      showEmptyResultsUIIfNeeded()
+      showEmptyResultsAlertIfNeeded()
     }
   }
   
   override func viewDidLoad() {
-    addSearchController()
-    layoutSearchBar()
+    super.viewDidLoad()
+    configureSearchController()
   }
   
   override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -53,20 +53,9 @@ class ArtSearchViewController: UITableViewController {
     destination.artwork = artwork
   }
   
-  override func viewWillAppear(_ animated: Bool) {
-    deselectSelectedArtwork()
-  }
-  
-  private func deselectSelectedArtwork(){
-    guard let selectedIndexPath = tableView.indexPathForSelectedRow else { return }
-    tableView.deselectRow(at: selectedIndexPath, animated: true)
-  }
-  
-  private func showEmptyResultsUIIfNeeded() {
+  private func showEmptyResultsAlertIfNeeded() {
     if (artworks.count == 0) {
-      let controller = UIAlertController(title: nil, message: "No Artworks Found", preferredStyle: .alert)
-      controller.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-      present(controller, animated: true, completion: nil)
+      handleFailure(title: "No Artworks Found", description: nil)
     }
   }
   
@@ -77,18 +66,17 @@ class ArtSearchViewController: UITableViewController {
 extension ArtSearchViewController: UISearchResultsUpdating  {
   
   func updateSearchResults(for searchController: UISearchController) {
-    
     guard searchBar.text?.characters.count ?? 0 > 2 else {
       return
     }
     
-    ArtsyAPIManager().search(searchBar.text!) { (results, error) in
+    ArtsyAPIManager().search(searchBar.text!, completion: { (results, error) in
       guard let results = results else {
         self.searchController.isActive = false
         self.handleFailure(description: error); return
       }
       self.searchResultsController.results = results as! [SearchResult]
-    }
+    })
   }
   
 }
@@ -103,35 +91,12 @@ extension ArtSearchViewController: SearchResultsControllerDelegate {
   }
   
   private func loadArtworks(for result: SearchResult) {
-    ArtsyAPIManager().artworks(for: result) { (results, error) in
-      guard let results = results as? [ArtworkResult] else {
+    ArtsyAPIManager().artworks(for: result, completion: { (artworks, error) in
+      guard let artworks = artworks as? [Artwork] else {
         self.handleFailure(description: error); return
       }
-      self.artworks = results
-    }
-  }
-  
-}
-
-//MARK - LAYOUT
-
-extension ArtSearchViewController {
-  
-  var searchBar: UISearchBar {
-    return searchController.searchBar
-  }
-  
-  func addSearchController() {
-    searchResultsController = SearchResultsController.makeUsingMainStoryboard()
-    searchResultsController.delegate = self
-    
-    searchController = UISearchController(searchResultsController: searchResultsController)
-    searchController.searchResultsUpdater = self
-  }
-  
-  func layoutSearchBar() {
-    tableView.tableHeaderView = searchBar
-    definesPresentationContext = true
+      self.artworks = artworks
+    })
   }
   
 }
@@ -146,12 +111,36 @@ extension ArtSearchViewController {
   
   override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
     let cell = tableView.dequeueReusableCell(withIdentifier: "CELL")!
-    
     let artwork = artworks[indexPath.row]
+    
     cell.textLabel?.text = artwork.title
     cell.detailTextLabel?.text = artwork.medium
-    
     return cell
+  }
+  
+}
+
+//MARK - LAYOUT
+
+extension ArtSearchViewController {
+  
+  var searchBar: UISearchBar {
+    return searchController.searchBar
+  }
+  
+  func configureSearchController() {
+    searchResultsController = SearchResultsController.makeUsingMainStoryboard()
+    searchResultsController.delegate = self
+    
+    searchController = UISearchController(searchResultsController: searchResultsController)
+    searchController.searchResultsUpdater = self
+    
+    layoutSearchBar()
+  }
+  
+  func layoutSearchBar() {
+    tableView.tableHeaderView = searchBar
+    definesPresentationContext = true
   }
   
 }

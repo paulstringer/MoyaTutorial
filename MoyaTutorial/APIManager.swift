@@ -40,49 +40,30 @@ class ArtsyAPIManager {
   // MARK: SEARCH
   
   func search(_ term: String, completion: @escaping APICompletion) {
-    
     let request = APIRequest.searchRequest(with: term)
     
-    request.responseJSON(completionHandler: self.responseHandler(parsing: {(JSON) in
+    request.responseJSON(completionHandler: ArtsyAPIManager.responseHandler(using: {(JSON) in
       return APIParser.searchResults(for: JSON)
     }, completion: completion))
-    
-    
   }
   
   //MARK: - ARTWORKS
   
-  func artworks(for result: SearchResult, completion: @escaping APICompletion){
-    
-    APIRequest.artworksRequest(for: result) { (request) in
+  func artworks(for result: SearchResult, completion: @escaping APICompletion) {
+    APIRequest.artworksRequest(for: result, completion: { (request) in
       guard let request = request else {
         completion(nil, nil); return
       }
       
-      request.responseJSON(completionHandler: self.responseHandler(parsing: {(JSON) in
+      request.responseJSON(completionHandler: ArtsyAPIManager.responseHandler(using: {(JSON) in
         return APIParser.artworkResults(for: JSON)
       }, completion: completion))
-      
-    }
-    
+    })
   }
   
-  private func responseHandler(parsing: @escaping ( [String:Any]? ) -> [Any], completion: @escaping APICompletion) -> (DataResponse<Any>) -> Swift.Void {
-    return { (response) in
-      
-      guard response.result.isSuccess else {
-        completion(nil, response.result.debugDescription); return
-      }
-      
-      let JSON = response.result.value as? [String:Any]
-      let results = parsing(JSON)
-      completion(results, nil)
-    }
-  }
-
   //MARK: IMAGE
   
-  func image(for artwork: ArtworkResult, completion: @escaping APIImageCompletion) {
+  func image(for artwork: Artwork, completion: @escaping APIImageCompletion) {
     
     let request = Alamofire.request(artwork.imageURL)
     request.responseData { (response) in
@@ -94,7 +75,7 @@ class ArtsyAPIManager {
       completion(image, nil)
     }
   }
-
+  
   func tags(for image: UIImage, completion: @escaping APICompletion) {
     
     guard let imageData = UIImageJPEGRepresentation(image, 0.5) else {
@@ -102,19 +83,19 @@ class ArtsyAPIManager {
     }
     
     Alamofire.upload(
-        multipartFormData: { multipartFormData in
-          multipartFormData.append(imageData,
+      multipartFormData: { multipartFormData in
+        multipartFormData.append(imageData,
                                  withName: "imagefile",
                                  fileName: "image.jpg",
                                  mimeType: "image/jpeg")
-        },
-        to: "http://api.imagga.com/v1/content",
-        headers: ApiAuthClient.Imagga.authenticationHeaders,
-        encodingCompletion: { encodingResult in
+    },
+      to: "http://api.imagga.com/v1/content",
+      headers: ApiAuthClient.Imagga.authenticationHeaders,
+      encodingCompletion: { [weak self] encodingResult in
         switch encodingResult {
         case .success(let upload, _, _):
           upload.responseJSON { response in
-
+            
             guard response.result.isSuccess else {
               completion(nil, response.result.debugDescription)
               return
@@ -128,33 +109,37 @@ class ArtsyAPIManager {
                 completion(nil, "Image Tagging Upload Failed!"); return
             }
             
-            self.loadTags(contentID: contentID, completion: completion)
+            guard let strongSelf = self else {
+              return
+            }
+            
+            strongSelf.loadTags(contentID: contentID, completion: completion)
           }
         case .failure(let encodingError):
           completion(nil, encodingError.localizedDescription)
         }
     })
-
+    
   }
   
   private func loadTags(contentID: String, completion: @escaping APICompletion) {
-    
     let request = APIRequest.tagsRequest(for: contentID)
-    
-    request.responseJSON(completionHandler: self.responseHandler(parsing: { (JSON) -> [Any] in
+    request.responseJSON(completionHandler: ArtsyAPIManager.responseHandler(using: { (JSON) -> [Any] in
       return APIParser.tagResults(for: JSON)
     }, completion: completion))
-
+    
   }
   
-  private func loadColorTags(contentID: String, completion: @escaping APICompletion) {
+  private static func responseHandler(using parsing: @escaping ( [String:Any]? ) -> [Any], completion: @escaping APICompletion) -> (DataResponse<Any>) -> Swift.Void {
     
-    let request = APIRequest.colorsRequest(for: contentID)
-    
-    request.responseJSON(completionHandler: self.responseHandler(parsing: { (JSON) -> [Any] in
-      return APIParser.colorResults(for: JSON)
-    }, completion: completion))
-    
+    return { (response) in
+      guard response.result.isSuccess else {
+        completion(nil, response.result.debugDescription); return
+      }
+      let JSON = response.result.value as? [String:Any]
+      let results = parsing(JSON)
+      completion(results, nil)
+    }
   }
   
 }
@@ -191,17 +176,11 @@ fileprivate struct APIRequest {
     }
   }
   
+  //MARK: - TAGS
   
-  //MARK: - IMAGE CONTENTS
-
-  static func tagsRequest(for contentID: String) -> DataRequest {
+  static func tagsRequest(for imaggaContentID: String) -> DataRequest {
     let url = try! "http://api.imagga.com/v1/tagging".asURL()
-    return APIRequest.authenticatedRequest(for: url, client: ApiAuthClient.Imagga, parameters: ["content" : contentID])
-  }
-  
-  static func colorsRequest(for contentID: String) -> DataRequest {
-    let url = try! "http://api.imagga.com/v1/colors".asURL()
-    return APIRequest.authenticatedRequest(for: url, client: ApiAuthClient.Imagga, parameters: ["content" : contentID])
+    return APIRequest.authenticatedRequest(for: url, client: ApiAuthClient.Imagga, parameters: ["content" : imaggaContentID])
   }
   
   //MARK: - PRIVATE UTILITIES
@@ -219,7 +198,6 @@ fileprivate struct APIRequest {
 private enum ApiAuthClient {
   case Artsy
   case Imagga
-  
   var authenticationHeaders: [String:String] {
     switch self {
     case .Artsy:
@@ -228,9 +206,4 @@ private enum ApiAuthClient {
       return ["Authorization": "Basic YWNjXzEzNzcxMjU0NDI2ZmRlZDo3MjVkYzMxNWFiZGY4Mjg2ZmM2M2ViZDhhMDBiNDBkYQ=="]
     }
   }
-
-  
 }
-
-
-

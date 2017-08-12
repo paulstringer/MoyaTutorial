@@ -40,19 +40,12 @@ struct Artist {
   let href: URL
 }
 
-struct ArtworkResult {
+struct Artwork {
   let title: String
   let medium: String
   let imageURL: URL
 }
 
-struct ColorResult {
-  let title: String
-  let colorR: Int
-  let colorG: Int
-  let colorB: Int
-}
-
-struct TagResult {
+struct Tag {
   let title: String
 }

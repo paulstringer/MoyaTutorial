@@ -13,7 +13,7 @@
         <!--Art Search View Controller-->
         <scene sceneID="FKu-e0-x88">
             <objects>
-                <tableViewController title="Art!" clearsSelectionOnViewWillAppear="NO" id="Dde-pd-ve9" userLabel="Art Search View Controller" customClass="ArtSearchViewController" customModule="MoyaTutorial" customModuleProvider="target" sceneMemberID="viewController">
+                <tableViewController title="Artists" id="Dde-pd-ve9" userLabel="Art Search View Controller" customClass="ArtSearchViewController" customModule="MoyaTutorial" customModuleProvider="target" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" id="8oO-OB-3vG">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -78,7 +78,7 @@
                                 </constraints>
                                 <segments>
                                     <segment title="Artwork"/>
-                                    <segment title="Colors"/>
+                                    <segment title="Tags"/>
                                 </segments>
                                 <color key="tintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <connections>

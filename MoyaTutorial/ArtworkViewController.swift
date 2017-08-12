@@ -35,9 +35,9 @@ class ArtworkViewController: UIViewController {
   @IBOutlet var segmentedControl: UISegmentedControl!
   @IBOutlet var imageView: UIImageView!
   @IBOutlet var tagsView: UIView!
-  var tagsViewController: TagsViewController!
   
-  var artwork: ArtworkResult!
+  var tagsViewController: TagsViewController!
+  var artwork: Artwork!
   
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -49,10 +49,10 @@ class ArtworkViewController: UIViewController {
   }
   
   private func loadArtImage() {
-    ArtsyAPIManager().image(for: artwork) { (image, errorDescription) in
+    ArtsyAPIManager().image(for: artwork, completion: { (image, errorDescription) in
       self.segmentedControl.setEnabled(true, forSegmentAt: 1)
       self.updateImage(with: image)
-    }
+    })
   }
   
   private func updateImage(with image: UIImage?) {

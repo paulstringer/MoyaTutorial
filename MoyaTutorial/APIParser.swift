@@ -42,28 +42,26 @@ class APIParser {
       }
       return SearchResult(title: title, href: href)
     }
-    
     return searchResults ?? []
   }
   
-  static func artistsHref(for rawSearchResult: [String:Any]) -> URL? {
-    let links = rawSearchResult["_links"] as? [String:Any]
+  static func artistsHref(for JSON: [String:Any]) -> URL? {
+    let links = JSON["_links"] as? [String:Any]
     let link = links?["self"] as? [String:String]
     let urlString = link?["href"] ?? ""
-    let href = URL(string: urlString)
-    return href
+    return try? urlString.asURL()
   }
   
   static func artworksURL(for JSON: [String:Any]?) -> URL? {
     let links = JSON?["_links"] as? [String:Any]
     let link = links?["artworks"] as? [String:String]
     let urlString = link?["href"] ?? ""
-    return URL(string: urlString)
+    return try? urlString.asURL()
   }
   
-  static func artworkResults(for JSON: [String:Any]?) -> [ArtworkResult] {
+  static func artworkResults(for JSON: [String:Any]?) -> [Artwork] {
     let artworks = embeddedResults(JSON, key: "artworks")
-    let results = artworks?.flatMap { result -> ArtworkResult? in
+    let results = artworks?.flatMap { result -> Artwork? in
       guard let title = result["title"] as? String,
         let medium = result["medium"] as? String,
         let links = result["_links"] as? [String:Any],
@@ -73,56 +71,26 @@ class APIParser {
       }
       
       href = href.replacingOccurrences(of: "{image_version}", with: "tall")
-      let imageURL = URL(string: href)!
-      return ArtworkResult(title: title, medium: medium, imageURL: imageURL)
+      let imageURL = try! href.asURL()
+      return Artwork(title: title, medium: medium, imageURL: imageURL)
     }
     
     return results ?? []
   }
   
-  static func tagResults(for JSON: [String:Any]?) -> [TagResult] {
-
+  static func tagResults(for JSON: [String:Any]?) -> [Tag] {
     guard let results = JSON?["results"] as? [[String: Any]],
           let firstObject = results.first,
-          let info = firstObject["tags"] as? [[String: Any]] else {
+          let tags = firstObject["tags"] as? [[String: Any]] else {
             print("Invalid tag information received from Imagga service")
             return []
     }
 
-    let value = info.flatMap { (tag) -> TagResult in
-      return TagResult(title: tag["tag"] as! String)
+    return tags.flatMap { (tag) -> Tag in
+      return Tag(title: tag["tag"] as! String)
     }
-    
-    return value
   }
-  
-  static func colorResults(for JSON: [String:Any]?) -> [ColorResult] {
 
-    guard let results = JSON?["results"] as? [[String: Any]],
-          let firstObject = results.first,
-          let info = firstObject["info"] as? [String: Any],
-          let imageColors = info["image_colors"] as? [[String: Any]] else {
-            print("Invalid color information received from service")
-            return []
-    }
-
-    let colors = imageColors.flatMap({ (dict) -> (r: Int, g: Int, b: Int, name: String)? in
-      guard let r = dict["r"] as? String,
-        let g = dict["g"] as? String,
-        let b = dict["b"] as? String,
-        let name = dict["closest_palette_color"] as? String else {
-          return nil
-      }
-      return (Int(r)!, Int(g)!, Int(b)!, name)
-    })
-
-    let value = colors.flatMap { (color) -> ColorResult in
-      return ColorResult(title: color.name, colorR: color.r, colorG: color.g, colorB: color.b)
-    }
-    
-    return value
-  }
-  
   static private func embeddedResults(_ JSON: [String:Any]?, key: String) -> [ [String:Any] ]? {
     let embedded = JSON?["_embedded"] as? [String:Any]
     let results = embedded?[key] as? [ [String:Any] ]
