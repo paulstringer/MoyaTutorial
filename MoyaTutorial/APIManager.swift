@@ -35,6 +35,7 @@ import Moya
 typealias ResultList = [Any]
 typealias APICompletion = (_ results: ResultList?, _ error: String?) -> Swift.Void
 typealias APIImageCompletion = (_ image: UIImage?, _ error: String?) -> Swift.Void
+typealias APIResultsParser = (Response) throws -> ResultList?
 
 private let endpointClosure = { (target: ArtService) -> Endpoint<ArtService> in
   switch target {
@@ -42,6 +43,25 @@ private let endpointClosure = { (target: ArtService) -> Endpoint<ArtService> in
     return Endpoint<ArtService>(url: href.absoluteString, sampleResponseClosure: {.networkResponse(200, target.sampleData)})
   default:
     return MoyaProvider.defaultEndpointMapping(for: target)
+  }
+}
+
+private func requestHandler(completion: @escaping APICompletion, parser: @escaping APIResultsParser)  -> Moya.Completion {
+  return { result in
+    switch result {
+      case let .success(moyaResponse):
+        do {
+          _ = try moyaResponse.filterSuccessfulStatusCodes()
+          if let result = try parser(moyaResponse) {
+            completion(result, nil)
+          }
+        }
+        catch {
+          completion(nil, error.localizedDescription)
+        }
+      case let .failure(error):
+        completion(nil, error.localizedDescription)
+      }
   }
 }
 
@@ -53,65 +73,35 @@ class ArtsyAPIManager {
   // MARK: SEARCH
   
   func search(_ term: String, completion: @escaping APICompletion) {
-    provider.request(.search(term: term)) { result in
-      switch result {
-      case let .success(moyaResponse):
-        do {
-          _ = try moyaResponse.filterSuccessfulStatusCodes()
-          let JSON = try moyaResponse.mapJSON() as? [String:Any]
-          let results = APIParser.searchResults(for: JSON)
-          completion(results, nil)
-        }
-        catch {
-          completion(nil, error.localizedDescription)
-        }
-      case let .failure(error):
-        completion(nil, error.localizedDescription)
-      }
-    }
+    
+    provider.request(.search(term: term), completion: requestHandler(completion: completion) { response in
+      let JSON = try response.mapJSON() as? [String:Any]
+      return APIParser.searchResults(for: JSON)
+    })
+    
   }
   
   //MARK: - ARTWORKS
   
   func artworks(for result: SearchResult, completion: @escaping APICompletion) {
     
-    // 1. Fetch the endpoint for the Result
+    // 1. Fetch the endpoint for the result
+    provider.request(.passthrough(href: result.href), completion: requestHandler(completion: completion) { response in
+      
+      // 2. Retrieve the artworks URL
+      let JSON = try response.mapJSON() as? [String:Any]
+      let artworksURL = APIParser.artworksURL(for: JSON)!
+   
+      // 3. Continue and request the artworks
+      self.provider.request(.passthrough(href: artworksURL), completion: requestHandler(completion: completion) { response in
+        let JSON = try response.mapJSON() as? [String:Any]
+        return APIParser.artworkResults(for: JSON)
+      })
+      
+      return nil // Indicates this is not yet a result to complete with
+      
+    })
     
-    provider.request(.passthrough(href: result.href)) { result in
-      switch result {
-      case let .success(moyaResponse):
-        do {
-          
-          // 2. Extract the artworks URL for the artist
-          
-          _ = try moyaResponse.filterSuccessfulStatusCodes()
-          let JSON = try moyaResponse.mapJSON() as? [String:Any]
-          let artworksURL = APIParser.artworksURL(for: JSON)!
-          
-          // 3. Fetch the artworks
-          
-          self.provider.request(.passthrough(href: artworksURL)) { result in
-            switch result {
-            case let .success(moyaResponse):
-              do {
-                _ = try moyaResponse.filterSuccessfulStatusCodes()
-                let JSON = try moyaResponse.mapJSON() as? [String:Any]
-                let results = APIParser.artworkResults(for: JSON)
-                completion(results, nil)
-              } catch {
-                completion(nil, error.localizedDescription)
-              }
-            case let .failure(error):
-              completion(nil, error.localizedDescription)
-            }
-          }
-        } catch {
-          completion(nil, error.localizedDescription)
-        }
-      case let .failure(error):
-        completion(nil, error.localizedDescription)
-      }
-    }
   }
   
   //MARK: IMAGE
