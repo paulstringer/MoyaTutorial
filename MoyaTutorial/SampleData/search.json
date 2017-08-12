@@ -1,0 +1,32 @@
+{
+  "total_count": 2,
+  "offset": 0,
+  "q": "Andy Warhol",
+  "_links": {
+    "self": {
+      "href": "https://api.artsy.net/api/search?offset=0&q=Andy+Warhol&size=10"
+    },
+    "next": {
+      "href": "https://api.artsy.net/api/search?offset=10&q=Andy+Warhol&size=10"
+    }
+  },
+  "_embedded": {
+    "results": [{
+                "type": "artist",
+                "title": "Andy Warhol",
+                "description": null,
+                "og_type": "artist",
+                "_links": {
+                "self": {
+                "href": "https://api.artsy.net/api/artists/4d8b92b34eb68a1b2c0003f4"
+                },
+                "permalink": {
+                "href": "http://www.artsy.net/artist/andy-warhol"
+                },
+                "thumbnail": {
+                "href": "https://d32dm0rphc51dk.cloudfront.net/PFufT6nMKNwLOpPEezf4Ww/square.jpg"
+                }
+                }
+                }]
+  }
+}

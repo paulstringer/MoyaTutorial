@@ -20,6 +20,8 @@
 		8C4A49041F38D3F300AC7991 /* APIManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C4A49031F38D3F300AC7991 /* APIManager.swift */; };
 		8C4A49061F38D55200AC7991 /* Entities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C4A49051F38D55200AC7991 /* Entities.swift */; };
 		8C4A49081F399A9E00AC7991 /* SearchResultsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C4A49071F399A9E00AC7991 /* SearchResultsController.swift */; };
+		8CE227E31F3F2DB500F852F2 /* APIServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CE227E21F3F2DB500F852F2 /* APIServices.swift */; };
+		8CE227E91F3F327E00F852F2 /* search.json in Resources */ = {isa = PBXBuildFile; fileRef = 8CE227E41F3F31EB00F852F2 /* search.json */; };
 		E34F382F394925EE2E3C449B /* Pods_MoyaTutorialTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F570EF500C7012C24276321B /* Pods_MoyaTutorialTests.framework */; };
 /* End PBXBuildFile section */
 
@@ -52,6 +54,8 @@
 		8C4A49031F38D3F300AC7991 /* APIManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = APIManager.swift; sourceTree = "<group>"; };
 		8C4A49051F38D55200AC7991 /* Entities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Entities.swift; sourceTree = "<group>"; };
 		8C4A49071F399A9E00AC7991 /* SearchResultsController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchResultsController.swift; sourceTree = "<group>"; };
+		8CE227E21F3F2DB500F852F2 /* APIServices.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = APIServices.swift; sourceTree = "<group>"; };
+		8CE227E41F3F31EB00F852F2 /* search.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = search.json; path = SampleData/search.json; sourceTree = "<group>"; };
 		BF491B0802B6EBEFA05DD4C6 /* Pods-MoyaTutorial.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MoyaTutorial.release.xcconfig"; path = "Pods/Target Support Files/Pods-MoyaTutorial/Pods-MoyaTutorial.release.xcconfig"; sourceTree = "<group>"; };
 		D41EAF8EBACFE5B7A83E64C3 /* Pods-MoyaTutorialTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MoyaTutorialTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-MoyaTutorialTests/Pods-MoyaTutorialTests.debug.xcconfig"; sourceTree = "<group>"; };
 		EC58E9A6A2E2B57107BFB4BE /* Pods_MoyaTutorial.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MoyaTutorial.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -103,7 +107,9 @@
 			children = (
 				8C4A49031F38D3F300AC7991 /* APIManager.swift */,
 				8C25AA3A1F3E086F00D2EBA1 /* APIParser.swift */,
+				8CE227E21F3F2DB500F852F2 /* APIServices.swift */,
 				8C4A49051F38D55200AC7991 /* Entities.swift */,
+				8CE227E41F3F31EB00F852F2 /* search.json */,
 			);
 			name = API;
 			sourceTree = "<group>";
@@ -268,6 +274,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8C4A48EE1F38D3D000AC7991 /* LaunchScreen.storyboard in Resources */,
+				8CE227E91F3F327E00F852F2 /* search.json in Resources */,
 				8C4A48EB1F38D3D000AC7991 /* Assets.xcassets in Resources */,
 				8C4A48E91F38D3D000AC7991 /* Main.storyboard in Resources */,
 			);
@@ -388,6 +395,7 @@
 				8C25AA391F3DE0DE00D2EBA1 /* TagsViewController.swift in Sources */,
 				8C4A49081F399A9E00AC7991 /* SearchResultsController.swift in Sources */,
 				8C4A48E41F38D3D000AC7991 /* AppDelegate.swift in Sources */,
+				8CE227E31F3F2DB500F852F2 /* APIServices.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
