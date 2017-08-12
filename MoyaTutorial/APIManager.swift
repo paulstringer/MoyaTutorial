@@ -91,7 +91,7 @@ class ArtsyAPIManager {
     },
       to: "http://api.imagga.com/v1/content",
       headers: ApiAuthClient.Imagga.authenticationHeaders,
-      encodingCompletion: { [weak self] encodingResult in
+      encodingCompletion: {  encodingResult in
         switch encodingResult {
         case .success(let upload, _, _):
           upload.responseJSON { response in
@@ -109,11 +109,7 @@ class ArtsyAPIManager {
                 completion(nil, "Image Tagging Upload Failed!"); return
             }
             
-            guard let strongSelf = self else {
-              return
-            }
-            
-            strongSelf.loadTags(contentID: contentID, completion: completion)
+            ArtsyAPIManager.loadTags(contentID: contentID, completion: completion)
           }
         case .failure(let encodingError):
           completion(nil, encodingError.localizedDescription)
@@ -122,7 +118,7 @@ class ArtsyAPIManager {
     
   }
   
-  private func loadTags(contentID: String, completion: @escaping APICompletion) {
+  private static func loadTags(contentID: String, completion: @escaping APICompletion) {
     let request = APIRequest.tagsRequest(for: contentID)
     request.responseJSON(completionHandler: ArtsyAPIManager.responseHandler(using: { (JSON) -> [Any] in
       return APIParser.tagResults(for: JSON)

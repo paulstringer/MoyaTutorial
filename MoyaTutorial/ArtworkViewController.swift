@@ -49,15 +49,18 @@ class ArtworkViewController: UIViewController {
   }
   
   private func loadArtImage() {
-    ArtsyAPIManager().image(for: artwork, completion: { (image, errorDescription) in
-      self.segmentedControl.setEnabled(true, forSegmentAt: 1)
-      self.updateImage(with: image)
+    ArtsyAPIManager().image(for: artwork, completion: { [weak self] (image, errorDescription) in
+      guard let strongSelf = self else {
+        return
+      }
+      strongSelf.segmentedControl.setEnabled(true, forSegmentAt: 1)
+      strongSelf.updateImage(with: image)
     })
   }
   
   private func updateImage(with image: UIImage?) {
-    self.imageView.image = image
-    self.tagsViewController.image = self.imageView.image
+    imageView.image = image
+    tagsViewController.image = imageView.image
   }
   
   @IBAction func segmentedControlValueChanged(sender: UISegmentedControl) {

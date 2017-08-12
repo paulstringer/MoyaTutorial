@@ -35,19 +35,22 @@ class TagsViewController: UITableViewController {
   var image: UIImage? {
     didSet {
       guard let image = image else { return }
-      ArtsyAPIManager().tags(for: image, completion: { (results, error) in
-        guard let results = results as? [Tag] else {
-          self.handleFailure(description: error)
+      ArtsyAPIManager().tags(for: image, completion: { [weak self] (results, error) in
+        guard let strongSelf = self else {
           return
         }
-        self.tags = results
+        guard let results = results as? [Tag] else {
+          strongSelf.handleFailure(description: error)
+          return
+        }
+        strongSelf.tags = results
       })
     }
   }
   
   var tags: [Tag] = [] {
     didSet {
-      self.tableView.reloadData()
+      tableView.reloadData()
     }
   }
 

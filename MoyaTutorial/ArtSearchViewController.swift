@@ -36,7 +36,7 @@ class ArtSearchViewController: UITableViewController {
   var searchResultsController: SearchResultsController!
   var artworks: [Artwork] = [] {
     didSet {
-      self.tableView.reloadData()
+      tableView.reloadData()
       showEmptyResultsAlertIfNeeded()
     }
   }
@@ -70,12 +70,15 @@ extension ArtSearchViewController: UISearchResultsUpdating  {
       return
     }
     
-    ArtsyAPIManager().search(searchBar.text!, completion: { (results, error) in
-      guard let results = results else {
-        self.searchController.isActive = false
-        self.handleFailure(description: error); return
+    ArtsyAPIManager().search(searchBar.text!, completion: { [weak self] (results, error) in
+      guard let strongSelf = self else {
+        return
       }
-      self.searchResultsController.results = results as! [SearchResult]
+      guard let results = results else {
+        strongSelf.searchController.isActive = false
+        strongSelf.handleFailure(description: error); return
+      }
+      strongSelf.searchResultsController.results = results as! [SearchResult]
     })
   }
   
@@ -91,11 +94,14 @@ extension ArtSearchViewController: SearchResultsControllerDelegate {
   }
   
   private func loadArtworks(for result: SearchResult) {
-    ArtsyAPIManager().artworks(for: result, completion: { (artworks, error) in
-      guard let artworks = artworks as? [Artwork] else {
-        self.handleFailure(description: error); return
+    ArtsyAPIManager().artworks(for: result, completion: { [weak self] (artworks, error) in
+      guard let strongSelf = self else {
+        return
       }
-      self.artworks = artworks
+      guard let artworks = artworks as? [Artwork] else {
+        strongSelf.handleFailure(description: error); return
+      }
+      strongSelf.artworks = artworks
     })
   }
   
