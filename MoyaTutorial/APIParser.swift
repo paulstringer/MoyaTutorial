@@ -30,10 +30,6 @@
 
 import Foundation
 
-public enum APIError: Error {
-  case unexpectedJSON
-}
-
 class APIParser {
   
   static func searchResults(for JSON: [String:Any]?) -> [SearchResult] {
