@@ -95,20 +95,14 @@ class APIManager {
         switch encodingResult {
         case .success(let upload, _, _):
           upload.responseJSON { response in
-            
             guard response.result.isSuccess else {
               completion(nil, response.result.debugDescription)
               return
             }
-            
-            guard
-              let JSON = response.value as? [String:Any],
-              let uploadedFiles = JSON["uploaded"] as? [[String: Any]],
-              let firstFile = uploadedFiles.first,
-              let contentID = firstFile["id"] as? String else {
-                completion(nil, "Image Tagging Upload Failed!"); return
+            let JSON = response.value as? [String:Any]
+            guard let contentID = APIParser.imaggaContentID(for: JSON) else {
+              completion(nil, "Image Tagging Upload Failed!"); return
             }
-            
             APIManager.loadTags(contentID: contentID, completion: completion)
           }
         case .failure(let encodingError):
