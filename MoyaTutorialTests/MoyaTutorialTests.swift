@@ -64,7 +64,7 @@ class MoyaTutorialServerErrorTests: XCTestCase {
   
   var artsyServiceFake: MoyaProvider<ArtsyService>!
   var manager: APIManager!
-
+  
   override func setUp() {
     artsyServiceFake = MoyaProvider<ArtsyService>(endpointClosure: stubEndpointClosure(statusCode: 500),
                                                   stubClosure: MoyaProvider.immediatelyStub)
@@ -81,7 +81,7 @@ class MoyaTutorialServerErrorTests: XCTestCase {
   
 }
 
-// MARK: - TEST UTILITIY FUNCTIONS
+// MARK: - TEST UTILITY FUNCTIONS
 
 func stubEndpointClosure(statusCode: Int) -> (ArtsyService) -> Endpoint<ArtsyService> {
   
