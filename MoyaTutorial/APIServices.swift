@@ -31,9 +31,22 @@
 import Foundation
 import Moya
 
+// Artsy Service
+
+private let endpointClosure = { (target: ArtService) -> Endpoint<ArtService> in
+  switch target {
+  case let .passthrough(href):
+    return Endpoint<ArtService>(url: href.absoluteString, sampleResponseClosure: {.networkResponse(200, target.sampleData)})
+  default:
+    return MoyaProvider.defaultEndpointMapping(for: target)
+  }
+}
+
+let artProvider = MoyaProvider<ArtService>(endpointClosure: endpointClosure, plugins: [ArtsyAuthPlugin(token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IiIsImV4cCI6MTUwMjg3Mzc5MywiaWF0IjoxNTAyMjY4OTkzLCJhdWQiOiI1OThhY2U0MDJhODkzYTU5NWM0MWJkYWMiLCJpc3MiOiJHcmF2aXR5IiwianRpIjoiNTk4YWNlNDE3NjIyZGQ1ZmI2MWUxMGYxIn0.fwDgu3gi6xa3s6X3YadrKJjoLiciDLP7-HUPk2j0dGM")])
+
 enum ArtService {
-  case search(term: String)
-  case passthrough(href: URL)
+  case search(_: String)
+  case passthrough(_: URL)
 }
 
 struct ArtsyAuthPlugin: PluginType {
@@ -55,7 +68,7 @@ extension ArtService: TargetType, AccessTokenAuthorizable {
   var path: String {
     switch self {
     case .search:
-      return "/search"
+      return "search"
     case .passthrough:
       return ""
     }
@@ -111,9 +124,104 @@ extension ArtService: TargetType, AccessTokenAuthorizable {
   
 }
 
-extension ArtService {
+extension TargetType {
   fileprivate func sampleData(forResource resource: String) -> Data {
     let url = Bundle.main.url(forResource: resource, withExtension: "json")!
     return try! Data(contentsOf: url)
+  }
+}
+
+// Imagga Service
+
+struct ImaggaAuthPlugin: PluginType {
+  let token = "Basic YWNjXzEzNzcxMjU0NDI2ZmRlZDo3MjVkYzMxNWFiZGY4Mjg2ZmM2M2ViZDhhMDBiNDBkYQ=="
+  func prepare(_ request: URLRequest, target: TargetType) -> URLRequest {
+    var request = request
+    request.addValue(token, forHTTPHeaderField: "Authorization")
+    return request
+  }
+}
+
+let imageProvider = MoyaProvider<ImaggaService>(plugins: [ImaggaAuthPlugin(), NetworkLoggerPlugin()])
+
+enum ImaggaService {
+  case upload(_ : UIImage)
+  case tags(contentID: String)
+}
+
+extension ImaggaService: TargetType {
+  
+  var baseURL: URL {
+    return try! "http://api.imagga.com/v1/".asURL()
+  }
+  
+  var path: String {
+    switch self {
+    case .upload:
+      return "content"
+    case .tags:
+      return "tagging"
+    }
+  }
+  
+  var method: Moya.Method {
+    switch self {
+    case .upload:
+      return .post
+    case .tags:
+      return .get
+    }
+  }
+  
+  var parameters: [String:Any]? {
+    switch self {
+    case .upload:
+      return nil
+    case let .tags(contentID):
+      return ["content":contentID]
+    }
+  }
+  
+  var parameterEncoding: ParameterEncoding {
+    switch self {
+    case .upload:
+      return URLEncoding.default
+    case .tags:
+      return URLEncoding.queryString
+    }
+  }
+  
+  var sampleData: Data {
+    switch self {
+    default:
+      return sampleData(forResource: "\(self)")
+    }
+  }
+  
+  var task: Task {
+    switch self {
+    case let .upload(image):
+      return uploadImageDataTask(with: image)
+    case .tags:
+      return .request
+    }
+  }
+  
+  var shouldAuthorize: Bool {
+    return true
+  }
+  
+}
+
+extension ImaggaService {
+  
+  func uploadImageDataTask(with image: UIImage) -> Task {
+    let imageData = UIImageJPEGRepresentation(image, 0.5) ?? Data()
+    let data = MultipartFormData.FormDataProvider.data(imageData)
+    let formData = MultipartFormData(provider: data,
+                                     name: "imagefile",
+                                     fileName: "image.jpg",
+                                     mimeType: "image/jpeg")
+    return .upload(.multipart([formData]))
   }
 }

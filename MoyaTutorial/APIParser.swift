@@ -90,6 +90,16 @@ class APIParser {
       return Tag(title: tag["tag"] as! String)
     }
   }
+  
+  static func imaggaContentID(for JSON: [String:Any]?) -> String? {
+    guard let uploadedFiles = JSON?["uploaded"] as? [[String: Any]],
+          let firstFile = uploadedFiles.first,
+          let contentID = firstFile["id"] as? String else {
+        return nil
+    }
+    
+    return contentID
+  }
 
   static private func embeddedResults(_ JSON: [String:Any]?, key: String) -> [ [String:Any] ]? {
     let embedded = JSON?["_embedded"] as? [String:Any]
