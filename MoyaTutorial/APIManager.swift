@@ -33,8 +33,7 @@ import Alamofire
 import Moya
 
 typealias APICompletion<ResultType> = (_ results: ResultType?, _ error: String?) -> Swift.Void
-typealias APIImageCompletion = (_ image: UIImage?, _ error: String?) -> Swift.Void
-typealias APIResultsParser<ResultType> = (Response) throws -> ResultType?
+typealias APIResponseParser<ResultType> = (Response) throws -> ResultType?
 
 private let endpointClosure = { (target: ArtService) -> Endpoint<ArtService> in
   switch target {
@@ -45,7 +44,7 @@ private let endpointClosure = { (target: ArtService) -> Endpoint<ArtService> in
   }
 }
 
-private func requestHandler<ResultType>(completion: @escaping APICompletion<ResultType>, parser: @escaping APIResultsParser<ResultType>)  -> Moya.Completion {
+private func requestHandler<ResultType>(completion: @escaping APICompletion<ResultType>, parser: @escaping APIResponseParser<ResultType>)  -> Moya.Completion {
   return { result in
     switch result {
       case let .success(moyaResponse):
