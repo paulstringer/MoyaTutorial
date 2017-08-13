@@ -31,39 +31,37 @@
 import Foundation
 import Alamofire
 
-typealias ResultList = [Any]
-typealias APICompletion = (_ results: ResultList?, _ error: String?) -> Swift.Void
-typealias APIImageCompletion = (_ image: UIImage?, _ error: String?) -> Swift.Void
+typealias APICompletion<ResultType> = (_ results: ResultType?, _ error: String?) -> Swift.Void
 
 class APIManager {
   
   // MARK: SEARCH
   
-  func search(_ term: String, completion: @escaping APICompletion) {
+  func search(_ term: String, completion: @escaping APICompletion<[SearchResult]>) {
     let request = APIRequest.searchRequest(with: term)
     
-    request.responseJSON(completionHandler: APIManager.responseHandler(using: {(JSON) in
+    request.responseJSON(completionHandler: responseHandler(completion: completion) {(JSON) in
       return APIParser.searchResults(for: JSON)
-    }, completion: completion))
+    })
   }
   
   //MARK: - ARTWORKS
   
-  func artworks(for result: SearchResult, completion: @escaping APICompletion) {
+  func artworks(for result: SearchResult, completion: @escaping APICompletion<[Artwork]>) {
     APIRequest.artworksRequest(for: result, completion: { (request) in
+      
       guard let request = request else {
         completion(nil, nil); return
       }
-      
-      request.responseJSON(completionHandler: APIManager.responseHandler(using: {(JSON) in
+      request.responseJSON(completionHandler: self.responseHandler(completion: completion) {(JSON) in
         return APIParser.artworkResults(for: JSON)
-      }, completion: completion))
+      })
     })
   }
   
   //MARK: IMAGE
   
-  func image(for artwork: Artwork, completion: @escaping APIImageCompletion) {
+  func image(for artwork: Artwork, completion: @escaping APICompletion<UIImage>) {
     
     let request = Alamofire.request(artwork.imageURL)
     request.responseData { (response) in
@@ -76,7 +74,7 @@ class APIManager {
     }
   }
   
-  func tags(for image: UIImage, completion: @escaping APICompletion) {
+  func tags(for image: UIImage, completion: @escaping APICompletion<[Tag]>) {
     
     guard let imageData = UIImageJPEGRepresentation(image, 0.5) else {
       fatalError()
@@ -103,7 +101,7 @@ class APIManager {
             guard let contentID = APIParser.imaggaContentID(for: JSON) else {
               completion(nil, "Image Tagging Upload Failed!"); return
             }
-            APIManager.loadTags(contentID: contentID, completion: completion)
+            self.loadTags(contentID: contentID, completion: completion)
           }
         case .failure(let encodingError):
           completion(nil, encodingError.localizedDescription)
@@ -112,15 +110,15 @@ class APIManager {
     
   }
   
-  private static func loadTags(contentID: String, completion: @escaping APICompletion) {
-    let request = APIRequest.tagsRequest(for: contentID)
-    request.responseJSON(completionHandler: APIManager.responseHandler(using: { (JSON) -> [Any] in
+  private func loadTags(contentID: String, completion: @escaping APICompletion<[Tag]>) {
+    let completionHandler = responseHandler(completion: completion) { (JSON) -> [Tag] in
       return APIParser.tagResults(for: JSON)
-    }, completion: completion))
-    
+    }
+    let request = APIRequest.tagsRequest(for: contentID)
+    request.responseJSON(completionHandler: completionHandler)
   }
   
-  private static func responseHandler(using parsing: @escaping ( [String:Any]? ) -> [Any], completion: @escaping APICompletion) -> (DataResponse<Any>) -> Swift.Void {
+  private func responseHandler<ResultType>(completion: @escaping APICompletion<ResultType>, using parsing: @escaping ( [String:Any]? ) -> ResultType ) -> (DataResponse<Any>) -> Swift.Void {
     
     return { (response) in
       guard response.result.isSuccess else {
@@ -131,8 +129,10 @@ class APIManager {
       completion(results, nil)
     }
   }
-  
 }
+
+
+
 
 fileprivate struct APIRequest {
   
