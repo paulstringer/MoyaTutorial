@@ -31,7 +31,7 @@
 import UIKit
 
 class TagsViewController: UITableViewController {
-
+  
   var image: UIImage? {
     didSet {
       guard let image = image else { return }
@@ -53,7 +53,7 @@ class TagsViewController: UITableViewController {
       tableView.reloadData()
     }
   }
-
+  
 }
 
 extension TagsViewController {

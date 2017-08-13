@@ -108,13 +108,6 @@
 			name = API;
 			sourceTree = "<group>";
 		};
-		8C25AA3E1F3E37AB00D2EBA1 /* Other */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Other;
-			sourceTree = "<group>";
-		};
 		8C25AA3F1F3E37C100D2EBA1 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
@@ -152,7 +145,6 @@
 				8C4A48E71F38D3D000AC7991 /* Main.storyboard */,
 				8C25AA3C1F3E379300D2EBA1 /* View Controlllers */,
 				8C25AA3D1F3E379D00D2EBA1 /* API */,
-				8C25AA3E1F3E37AB00D2EBA1 /* Other */,
 				8C25AA3F1F3E37C100D2EBA1 /* Supporting Files */,
 			);
 			path = MoyaTutorial;

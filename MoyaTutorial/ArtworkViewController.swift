@@ -77,5 +77,5 @@ class ArtworkViewController: UIViewController {
       return
     }
   }
-
+  
 }
