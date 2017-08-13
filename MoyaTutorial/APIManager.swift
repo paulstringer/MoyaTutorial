@@ -32,10 +32,9 @@ import Foundation
 import Alamofire
 import Moya
 
-typealias ResultList = [Any]
-typealias APICompletion = (_ results: ResultList?, _ error: String?) -> Swift.Void
+typealias APICompletion<ResultType> = (_ results: ResultType?, _ error: String?) -> Swift.Void
 typealias APIImageCompletion = (_ image: UIImage?, _ error: String?) -> Swift.Void
-typealias APIResultsParser = (Response) throws -> ResultList?
+typealias APIResultsParser<ResultType> = (Response) throws -> ResultType?
 
 private let endpointClosure = { (target: ArtService) -> Endpoint<ArtService> in
   switch target {
@@ -46,7 +45,7 @@ private let endpointClosure = { (target: ArtService) -> Endpoint<ArtService> in
   }
 }
 
-private func requestHandler(completion: @escaping APICompletion, parser: @escaping APIResultsParser)  -> Moya.Completion {
+private func requestHandler<ResultType>(completion: @escaping APICompletion<ResultType>, parser: @escaping APIResultsParser<ResultType>)  -> Moya.Completion {
   return { result in
     switch result {
       case let .success(moyaResponse):
@@ -72,7 +71,7 @@ class ArtsyAPIManager {
   
   // MARK: SEARCH
   
-  func search(_ term: String, completion: @escaping APICompletion) {
+  func search(_ term: String, completion: @escaping APICompletion<[Any]>) {
     
     provider.request(.search(term: term), completion: requestHandler(completion: completion) { response in
       let JSON = try response.mapJSON() as? [String:Any]
@@ -83,7 +82,7 @@ class ArtsyAPIManager {
   
   //MARK: - ARTWORKS
   
-  func artworks(for result: SearchResult, completion: @escaping APICompletion) {
+  func artworks(for result: SearchResult, completion: @escaping APICompletion<[Any]>) {
     
     // 1. Fetch the endpoint for the result
     provider.request(.passthrough(href: result.href), completion: requestHandler(completion: completion) { response in
@@ -106,20 +105,16 @@ class ArtsyAPIManager {
   
   //MARK: IMAGE
   
-  func image(for artwork: Artwork, completion: @escaping APIImageCompletion) {
+  func image(for artwork: Artwork, completion: @escaping APICompletion<UIImage>) {
     
-    let request = Alamofire.request(artwork.imageURL)
-    request.responseData { (response) in
-      guard response.result.isSuccess else {
-        completion(nil, response.result.debugDescription)
-        return
-      }
-      let image = UIImage(data: response.value!)
-      completion(image, nil)
-    }
+    provider.request(.passthrough(href: artwork.imageURL  ), completion: requestHandler(completion: completion) { response in
+      let image = try response.mapImage()
+      return image
+    })
+    
   }
   
-  func tags(for image: UIImage, completion: @escaping APICompletion) {
+  func tags(for image: UIImage, completion: @escaping APICompletion<[Any]>) {
     
     guard let imageData = UIImageJPEGRepresentation(image, 0.5) else {
       fatalError()
@@ -161,7 +156,7 @@ class ArtsyAPIManager {
     
   }
   
-  private static func loadTags(contentID: String, completion: @escaping APICompletion) {
+  private static func loadTags(contentID: String, completion: @escaping APICompletion<[Any]>) {
     let request = APIRequest.tagsRequest(for: contentID)
     request.responseJSON(completionHandler: ArtsyAPIManager.responseHandler(using: { (JSON) -> [Any] in
       return APIParser.tagResults(for: JSON)
@@ -169,7 +164,7 @@ class ArtsyAPIManager {
     
   }
   
-  private static func responseHandler(using parsing: @escaping ( [String:Any]? ) -> [Any], completion: @escaping APICompletion) -> (DataResponse<Any>) -> Swift.Void {
+  private static func responseHandler<T>(using parsing: @escaping ( [String:Any]? ) -> T, completion: @escaping APICompletion<T>) -> (DataResponse<Any>) -> Swift.Void {
     
     return { (response) in
       guard response.result.isSuccess else {
