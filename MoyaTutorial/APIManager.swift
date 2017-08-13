@@ -35,14 +35,14 @@ typealias ResultList = [Any]
 typealias APICompletion = (_ results: ResultList?, _ error: String?) -> Swift.Void
 typealias APIImageCompletion = (_ image: UIImage?, _ error: String?) -> Swift.Void
 
-class ArtsyAPIManager {
+class APIManager {
   
   // MARK: SEARCH
   
   func search(_ term: String, completion: @escaping APICompletion) {
     let request = APIRequest.searchRequest(with: term)
     
-    request.responseJSON(completionHandler: ArtsyAPIManager.responseHandler(using: {(JSON) in
+    request.responseJSON(completionHandler: APIManager.responseHandler(using: {(JSON) in
       return APIParser.searchResults(for: JSON)
     }, completion: completion))
   }
@@ -55,7 +55,7 @@ class ArtsyAPIManager {
         completion(nil, nil); return
       }
       
-      request.responseJSON(completionHandler: ArtsyAPIManager.responseHandler(using: {(JSON) in
+      request.responseJSON(completionHandler: APIManager.responseHandler(using: {(JSON) in
         return APIParser.artworkResults(for: JSON)
       }, completion: completion))
     })
@@ -109,7 +109,7 @@ class ArtsyAPIManager {
                 completion(nil, "Image Tagging Upload Failed!"); return
             }
             
-            ArtsyAPIManager.loadTags(contentID: contentID, completion: completion)
+            APIManager.loadTags(contentID: contentID, completion: completion)
           }
         case .failure(let encodingError):
           completion(nil, encodingError.localizedDescription)
@@ -120,7 +120,7 @@ class ArtsyAPIManager {
   
   private static func loadTags(contentID: String, completion: @escaping APICompletion) {
     let request = APIRequest.tagsRequest(for: contentID)
-    request.responseJSON(completionHandler: ArtsyAPIManager.responseHandler(using: { (JSON) -> [Any] in
+    request.responseJSON(completionHandler: APIManager.responseHandler(using: { (JSON) -> [Any] in
       return APIParser.tagResults(for: JSON)
     }, completion: completion))
     

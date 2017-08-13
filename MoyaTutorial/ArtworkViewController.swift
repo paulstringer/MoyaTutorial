@@ -49,7 +49,7 @@ class ArtworkViewController: UIViewController {
   }
   
   private func loadArtImage() {
-    ArtsyAPIManager().image(for: artwork, completion: { [weak self] (image, errorDescription) in
+    APIManager().image(for: artwork, completion: { [weak self] (image, errorDescription) in
       guard let strongSelf = self else {
         return
       }
