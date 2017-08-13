@@ -36,10 +36,18 @@ typealias APIResponseParser<ResultType> = (Response) throws -> ResultType?
 
 class APIManager {
   
+  let artsyService: MoyaProvider<ArtsyService>
+  let imaggaService: MoyaProvider<ImaggaService>
+  
+  init(artsyService: MoyaProvider<ArtsyService> = artsyProvider, imaggaService : MoyaProvider<ImaggaService> = imaggaProvider) {
+    self.artsyService = artsyService
+    self.imaggaService = imaggaService
+  }
+  
   // MARK: - SEARCH
   
-  func search(_ term: String, completion: @escaping APICompletion<[Any]>) {
-    artProvider.request(.search(term), completion: requestHandler(completion: completion) { response in
+  func search(_ term: String, completion: @escaping APICompletion<[SearchResult]>) {
+    artsyService.request(.search(term), completion: requestHandler(completion: completion) { response in
       let JSON = try response.mapJSON() as? [String:Any]
       return APIParser.searchResults(for: JSON)
     })
@@ -47,10 +55,10 @@ class APIManager {
   
   //MARK: - ARTWORKS
   
-  func artworks(for result: SearchResult, completion: @escaping APICompletion<[Any]>) {
+  func artworks(for result: SearchResult, completion: @escaping APICompletion<[Artwork]>) {
     artist(for: result) { (artist, _) in
       let artworksURL = APIParser.artworksURL(for: artist)!
-      artProvider.request(.passthrough(artworksURL), completion: requestHandler(completion: completion) { response in
+      self.artsyService.request(.passthrough(artworksURL), completion: self.requestHandler(completion: completion) { response in
         let JSON = try response.mapJSON() as? [String:Any]
         return APIParser.artworkResults(for: JSON)
       })
@@ -58,7 +66,7 @@ class APIManager {
   }
   
   private func artist(for result: SearchResult, completion: @escaping APICompletion<[String:Any]>) {
-    artProvider.request(.passthrough(result.href), completion: requestHandler(completion: completion) { response in
+    artsyService.request(.passthrough(result.href), completion: requestHandler(completion: completion) { response in
       return try response.mapJSON() as? [String:Any]
     })
   }
@@ -66,7 +74,7 @@ class APIManager {
   //MARK: - IMAGE DOWNLOAD
   
   func image(for artwork: Artwork, completion: @escaping APICompletion<UIImage>) {
-    artProvider.request(.passthrough(artwork.imageURL), completion: requestHandler(completion: completion) { response in
+    artsyService.request(.passthrough(artwork.imageURL), completion: requestHandler(completion: completion) { response in
       let image = try response.mapImage()
       return image
     })
@@ -74,9 +82,9 @@ class APIManager {
   
   //MARK: - TAGS
   
-  func tags(for image: UIImage, completion: @escaping APICompletion<[Any]>) {
+  func tags(for image: UIImage, completion: @escaping APICompletion<[Tag]>) {
     upload(image: image) { (contentID, _) in
-      imageProvider.request(.tags(contentID: contentID!), completion: requestHandler(completion: completion) { response in
+      self.imaggaService.request(.tags(contentID: contentID!), completion: self.requestHandler(completion: completion) { response in
         let JSON = try response.mapJSON() as? [String:Any]
         return APIParser.tagResults(for: JSON)
       })
@@ -84,32 +92,33 @@ class APIManager {
   }
   
   private func upload(image: UIImage, completion: @escaping APICompletion<String>) {
-    imageProvider.request(.upload(image), completion: requestHandler(completion: completion) { response in
+    imaggaService.request(.upload(image), completion: requestHandler(completion: completion) { response in
       let JSON = try response.mapJSON() as? [String:Any]
       let contentID = APIParser.imaggaContentID(for: JSON)!
       return contentID
     })
   }
   
-}
-
-//MARK: - MOYA RESPONSE HANDLER
-
-private func requestHandler<ResultType>(completion: @escaping APICompletion<ResultType>, parser: @escaping APIResponseParser<ResultType>)  -> Moya.Completion {
-  return { result in
-    switch result {
-    case let .success(moyaResponse):
-      do {
-        _ = try moyaResponse.filterSuccessfulStatusCodes()
-        if let result = try parser(moyaResponse) {
-          completion(result, nil)
+  //MARK: - MOYA RESPONSE HANDLER
+  
+  private func requestHandler<ResultType>(completion: @escaping APICompletion<ResultType>, parser: @escaping APIResponseParser<ResultType>)  -> Moya.Completion {
+    return { result in
+      switch result {
+      case let .success(moyaResponse):
+        do {
+          _ = try moyaResponse.filterSuccessfulStatusCodes()
+          if let result = try parser(moyaResponse) {
+            completion(result, nil)
+          }
         }
-      }
-      catch {
+        catch {
+          completion(nil, error.localizedDescription)
+        }
+      case let .failure(error):
         completion(nil, error.localizedDescription)
       }
-    case let .failure(error):
-      completion(nil, error.localizedDescription)
     }
   }
 }
+
+

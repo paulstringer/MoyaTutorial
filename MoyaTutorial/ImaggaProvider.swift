@@ -31,7 +31,7 @@
 import Foundation
 import Moya
 
-let imageProvider = MoyaProvider<ImaggaService>(plugins: [ImaggaAuthPlugin])
+let imaggaProvider = MoyaProvider<ImaggaService>(plugins: [ImaggaAuthPlugin])
 
 enum ImaggaService {
   case upload(_ : UIImage)

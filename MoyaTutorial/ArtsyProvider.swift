@@ -31,14 +31,14 @@
 import Foundation
 import Moya
 
-let artProvider = MoyaProvider<ArtService>(endpointClosure: endpointClosure, plugins: [ArtsyAuthPlugin])
+let artsyProvider = MoyaProvider<ArtsyService>(endpointClosure: endpointClosure, plugins: [ArtsyAuthPlugin])
 
-enum ArtService {
+enum ArtsyService {
   case search(_: String)
   case passthrough(_: URL)
 }
 
-extension ArtService: TargetType, AccessTokenAuthorizable {
+extension ArtsyService: TargetType, AccessTokenAuthorizable {
   
   var baseURL: URL {
     return try! "https://api.artsy.net/api/".asURL()
@@ -79,8 +79,8 @@ extension ArtService: TargetType, AccessTokenAuthorizable {
     switch self {
     case .passthrough:
       return Data()
-    default:
-      return sampleData(forResource: "\(self)")
+    case .search:
+      return sampleData(forResource: "search")
     }
   }
   
@@ -94,16 +94,16 @@ extension ArtService: TargetType, AccessTokenAuthorizable {
   
 }
 
-private let endpointClosure = { (target: ArtService) -> Endpoint<ArtService> in
+private let endpointClosure = { (target: ArtsyService) -> Endpoint<ArtsyService> in
   switch target {
   case let .passthrough(href):
-    return Endpoint<ArtService>(url: href.absoluteString, sampleResponseClosure: {.networkResponse(200, target.sampleData)})
+    return Endpoint<ArtsyService>(url: href.absoluteString, sampleResponseClosure: {.networkResponse(200, target.sampleData)})
   default:
     return MoyaProvider.defaultEndpointMapping(for: target)
   }
 }
 
-extension ArtService {
+extension ArtsyService {
   fileprivate func sampleData(forResource resource: String) -> Data {
     let url = Bundle.main.url(forResource: resource, withExtension: "json")!
     return try! Data(contentsOf: url)

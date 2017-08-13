@@ -78,7 +78,7 @@ extension ArtSearchViewController: UISearchResultsUpdating  {
         strongSelf.searchController.isActive = false
         strongSelf.handleFailure(description: error); return
       }
-      strongSelf.searchResultsController.results = results as! [SearchResult]
+      strongSelf.searchResultsController.results = results 
     })
   }
   
@@ -98,7 +98,7 @@ extension ArtSearchViewController: SearchResultsControllerDelegate {
       guard let strongSelf = self else {
         return
       }
-      guard let artworks = artworks as? [Artwork] else {
+      guard let artworks = artworks else {
         strongSelf.handleFailure(description: error); return
       }
       strongSelf.artworks = artworks

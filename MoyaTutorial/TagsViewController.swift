@@ -39,7 +39,7 @@ class TagsViewController: UITableViewController {
         guard let strongSelf = self else {
           return
         }
-        guard let results = results as? [Tag] else {
+        guard let results = results else {
           strongSelf.handleFailure(description: error)
           return
         }
