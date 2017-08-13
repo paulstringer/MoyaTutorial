@@ -55,7 +55,7 @@ class ArtSearchViewController: UITableViewController {
   
   private func showEmptyResultsAlertIfNeeded() {
     if (artworks.count == 0) {
-      handleFailure(title: "No Artworks Found", description: nil)
+      handleFailure(title: "No Public Domain Art Found", description: "Search is limited to works available in the public domain. Examples of artist with public domain works are 'Goya', 'Monet' and 'van Gogh'.")
     }
   }
   
@@ -70,7 +70,7 @@ extension ArtSearchViewController: UISearchResultsUpdating  {
       return
     }
     
-    ArtsyAPIManager().search(searchBar.text!, completion: { [weak self] (results, error) in
+    APIManager().search(searchBar.text!, completion: { [weak self] (results, error) in
       guard let strongSelf = self else {
         return
       }
@@ -94,7 +94,7 @@ extension ArtSearchViewController: SearchResultsControllerDelegate {
   }
   
   private func loadArtworks(for result: SearchResult) {
-    ArtsyAPIManager().artworks(for: result, completion: { [weak self] (artworks, error) in
+    APIManager().artworks(for: result, completion: { [weak self] (artworks, error) in
       guard let strongSelf = self else {
         return
       }

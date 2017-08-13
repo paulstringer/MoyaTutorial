@@ -30,6 +30,10 @@
 
 import Foundation
 
+public enum APIError: Error {
+  case unexpectedJSON
+}
+
 class APIParser {
   
   static func searchResults(for JSON: [String:Any]?) -> [SearchResult] {
@@ -80,12 +84,12 @@ class APIParser {
   
   static func tagResults(for JSON: [String:Any]?) -> [Tag] {
     guard let results = JSON?["results"] as? [[String: Any]],
-          let firstObject = results.first,
-          let tags = firstObject["tags"] as? [[String: Any]] else {
-            print("Invalid tag information received from Imagga service")
-            return []
+      let firstObject = results.first,
+      let tags = firstObject["tags"] as? [[String: Any]] else {
+        print("Invalid tag information received from Imagga service")
+        return []
     }
-
+    
     return tags.flatMap { (tag) -> Tag in
       return Tag(title: tag["tag"] as! String)
     }
@@ -93,14 +97,13 @@ class APIParser {
   
   static func imaggaContentID(for JSON: [String:Any]?) -> String? {
     guard let uploadedFiles = JSON?["uploaded"] as? [[String: Any]],
-          let firstFile = uploadedFiles.first,
-          let contentID = firstFile["id"] as? String else {
+      let firstFile = uploadedFiles.first,
+      let contentID = firstFile["id"] as? String else {
         return nil
     }
-    
     return contentID
   }
-
+  
   static private func embeddedResults(_ JSON: [String:Any]?, key: String) -> [ [String:Any] ]? {
     let embedded = JSON?["_embedded"] as? [String:Any]
     let results = embedded?[key] as? [ [String:Any] ]

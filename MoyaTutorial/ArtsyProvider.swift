@@ -28,54 +28,84 @@
  * THE SOFTWARE.
  */
 
-import UIKit
+import Foundation
+import Moya
 
-class ArtworkViewController: UIViewController {
+let artProvider = MoyaProvider<ArtService>(endpointClosure: endpointClosure, plugins: [ArtsyAuthPlugin])
+
+enum ArtService {
+  case search(_: String)
+  case passthrough(_: URL)
+}
+
+extension ArtService: TargetType, AccessTokenAuthorizable {
   
-  @IBOutlet var segmentedControl: UISegmentedControl!
-  @IBOutlet var imageView: UIImageView!
-  @IBOutlet var tagsView: UIView!
-  
-  var tagsViewController: TagsViewController!
-  var artwork: Artwork!
-  
-  override func viewDidLoad() {
-    super.viewDidLoad()
-    loadArtImage()
+  var baseURL: URL {
+    return try! "https://api.artsy.net/api/".asURL()
   }
   
-  override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-    tagsViewController = segue.destination as! TagsViewController
-  }
-  
-  private func loadArtImage() {
-    APIManager().image(for: artwork, completion: { [weak self] (image, errorDescription) in
-      guard let strongSelf = self else {
-        return
-      }
-      strongSelf.segmentedControl.setEnabled(true, forSegmentAt: 1)
-      strongSelf.updateImage(with: image)
-    })
-  }
-  
-  private func updateImage(with image: UIImage?) {
-    imageView.image = image
-    tagsViewController.image = imageView.image
-  }
-  
-  @IBAction func segmentedControlValueChanged(sender: UISegmentedControl) {
-    switch sender.selectedSegmentIndex {
-    case 0:
-      imageView.isHidden = false
-      tagsView.isHidden = true
-      return
-    case 1:
-      imageView.isHidden = true
-      tagsView.isHidden = false
-      return
-    default:
-      return
+  var path: String {
+    switch self {
+    case .search:
+      return "search"
+    case .passthrough:
+      return ""
     }
   }
+  
+  var method: Moya.Method {
+    return .get
+  }
+  
+  var parameters: [String:Any]? {
+    switch self {
+    case let .search(term):
+      return ["q":term.lowercased(),"type":"artist"]
+    case .passthrough:
+      return nil
+    }
+  }
+  
+  var parameterEncoding: ParameterEncoding {
+    switch self {
+    case .search:
+      return URLEncoding.queryString
+    case .passthrough:
+      return URLEncoding.default
+    }
+  }
+  
+  var sampleData: Data {
+    switch self {
+    case .passthrough:
+      return Data()
+    default:
+      return sampleData(forResource: "\(self)")
+    }
+  }
+  
+  var task: Task {
+    return .request
+  }
+  
+  var shouldAuthorize: Bool {
+    return true
+  }
+  
+}
 
+private let endpointClosure = { (target: ArtService) -> Endpoint<ArtService> in
+  switch target {
+  case let .passthrough(href):
+    return Endpoint<ArtService>(url: href.absoluteString, sampleResponseClosure: {.networkResponse(200, target.sampleData)})
+  default:
+    return MoyaProvider.defaultEndpointMapping(for: target)
+  }
+}
+
+extension ArtService {
+  fileprivate func sampleData(forResource resource: String) -> Data {
+    let url = Bundle.main.url(forResource: resource, withExtension: "json")!
+    return try! Data(contentsOf: url)
+  }
 }

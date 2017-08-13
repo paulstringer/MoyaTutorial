@@ -29,34 +29,14 @@
  */
 
 import Foundation
-import Alamofire
 import Moya
 
 typealias APICompletion<ResultType> = (_ results: ResultType?, _ error: String?) -> Swift.Void
 typealias APIResponseParser<ResultType> = (Response) throws -> ResultType?
 
-private func requestHandler<ResultType>(completion: @escaping APICompletion<ResultType>, parser: @escaping APIResponseParser<ResultType>)  -> Moya.Completion {
-  return { result in
-    switch result {
-      case let .success(moyaResponse):
-        do {
-          _ = try moyaResponse.filterSuccessfulStatusCodes()
-          if let result = try parser(moyaResponse) {
-            completion(result, nil)
-          }
-        }
-        catch {
-          completion(nil, error.localizedDescription)
-        }
-      case let .failure(error):
-        completion(nil, error.localizedDescription)
-      }
-  }
-}
-
-class ArtsyAPIManager {
+class APIManager {
   
-  // MARK: SEARCH
+  // MARK: - SEARCH
   
   func search(_ term: String, completion: @escaping APICompletion<[Any]>) {
     artProvider.request(.search(term), completion: requestHandler(completion: completion) { response in
@@ -68,7 +48,6 @@ class ArtsyAPIManager {
   //MARK: - ARTWORKS
   
   func artworks(for result: SearchResult, completion: @escaping APICompletion<[Any]>) {
-    
     artist(for: result) { (artist, _) in
       let artworksURL = APIParser.artworksURL(for: artist)!
       artProvider.request(.passthrough(artworksURL), completion: requestHandler(completion: completion) { response in
@@ -76,7 +55,6 @@ class ArtsyAPIManager {
         return APIParser.artworkResults(for: JSON)
       })
     }
-    
   }
   
   private func artist(for result: SearchResult, completion: @escaping APICompletion<[String:Any]>) {
@@ -85,18 +63,16 @@ class ArtsyAPIManager {
     })
   }
   
-  //MARK: IMAGE DOWNLOAD
+  //MARK: - IMAGE DOWNLOAD
   
   func image(for artwork: Artwork, completion: @escaping APICompletion<UIImage>) {
-    
     artProvider.request(.passthrough(artwork.imageURL), completion: requestHandler(completion: completion) { response in
       let image = try response.mapImage()
       return image
     })
-    
   }
   
-  //MARK: TAGS
+  //MARK: - TAGS
   
   func tags(for image: UIImage, completion: @escaping APICompletion<[Any]>) {
     upload(image: image) { (contentID, _) in
@@ -115,4 +91,25 @@ class ArtsyAPIManager {
     })
   }
   
+}
+
+//MARK: - MOYA RESPONSE HANDLER
+
+private func requestHandler<ResultType>(completion: @escaping APICompletion<ResultType>, parser: @escaping APIResponseParser<ResultType>)  -> Moya.Completion {
+  return { result in
+    switch result {
+    case let .success(moyaResponse):
+      do {
+        _ = try moyaResponse.filterSuccessfulStatusCodes()
+        if let result = try parser(moyaResponse) {
+          completion(result, nil)
+        }
+      }
+      catch {
+        completion(nil, error.localizedDescription)
+      }
+    case let .failure(error):
+      completion(nil, error.localizedDescription)
+    }
+  }
 }

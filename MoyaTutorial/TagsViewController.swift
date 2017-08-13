@@ -35,7 +35,7 @@ class TagsViewController: UITableViewController {
   var image: UIImage? {
     didSet {
       guard let image = image else { return }
-      ArtsyAPIManager().tags(for: image, completion: { [weak self] (results, error) in
+      APIManager().tags(for: image, completion: { [weak self] (results, error) in
         guard let strongSelf = self else {
           return
         }
