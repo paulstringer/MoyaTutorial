@@ -9,6 +9,8 @@
 import Foundation
 import Moya
 
+let artsyProvider = MoyaProvider<ArtsyService>()
+
 enum ArtsyService {
   case search(String)
 }
@@ -34,19 +36,27 @@ extension ArtsyService: TargetType {
   }
   
   /// The parameters to be encoded in the request.
-  var parameters: [String: Any]? {}
+  var parameters: [String: Any]? {
+    switch self {
+    case let .search(term):
+      return ["q":term, "type":"artist"]
+    }
+  }
   
   /// The method used for parameter encoding.
-  var parameterEncoding: ParameterEncoding {}
+  var parameterEncoding: ParameterEncoding {
+    return URLEncoding.queryString
+  }
   
   /// Provides stub data for use in testing.
-  var sampleData: Data {}
+  var sampleData: Data {
+    return Data()
+  }
   
   /// The type of HTTP task to be performed.
-  var task: Task {}
-  
-  /// Whether or not to perform Alamofire validation. Defaults to `false`.
-  var validate: Bool {}
+  var task: Task {
+    return .request
+  }
   
 }
 
