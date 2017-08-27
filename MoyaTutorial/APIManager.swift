@@ -118,14 +118,14 @@ class APIManager {
     request.responseJSON(completionHandler: completionHandler)
   }
   
-  private func responseHandler<ResultType>(completion: @escaping APICompletion<ResultType>, using parsing: @escaping ( [String:Any]? ) -> ResultType ) -> (DataResponse<Any>) -> Swift.Void {
+  private func responseHandler<ResultType>(completion: @escaping APICompletion<ResultType>, parser: @escaping ( [String:Any]? ) -> ResultType ) -> (DataResponse<Any>) -> Swift.Void {
     
     return { (response) in
       guard response.result.isSuccess else {
         completion(nil, response.result.debugDescription); return
       }
       let JSON = response.result.value as? [String:Any]
-      let results = parsing(JSON)
+      let results = parser(JSON)
       completion(results, nil)
     }
   }
