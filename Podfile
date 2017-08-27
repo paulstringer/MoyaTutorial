@@ -7,7 +7,8 @@ target 'MoyaTutorial' do
 
   # Pods for MoyaTutorial
 
-  pod 'Alamofire'
+  pod 'Moya'
+  
   target 'MoyaTutorialTests' do
     inherit! :search_paths
     # Pods for testing
