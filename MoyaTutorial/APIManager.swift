@@ -115,7 +115,7 @@ class APIManager {
           completion(nil, error.localizedDescription)
         }
       case let .failure(error):
-        completion(nil, error.localizedDescription)
+        completion(nil, error.errorDescription)
       }
     }
   }
