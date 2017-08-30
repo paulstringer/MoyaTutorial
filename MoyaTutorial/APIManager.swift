@@ -30,17 +30,18 @@
 
 import Foundation
 import Alamofire
+import Moya
 
 typealias APICompletion<ResultType> = (_ results: ResultType?, _ error: String?) -> Swift.Void
+typealias APIResponseParser<ResultType> = (Response) throws -> ResultType?
 
 class APIManager {
   
   // MARK: SEARCH
   
   func search(_ term: String, completion: @escaping APICompletion<[SearchResult]>) {
-    let request = APIRequest.searchRequest(with: term)
-    
-    request.responseJSON(completionHandler: responseHandler(completion: completion) {(JSON) in
+    artsyProvider.request(.search(term), completion: responseHandler(completion: completion) { (response)  in
+      let JSON = try response.mapJSON() as? [String:Any]
       return APIParser.searchResults(for: JSON)
     })
   }
@@ -127,6 +128,25 @@ class APIManager {
       let JSON = response.result.value as? [String:Any]
       let results = parsing(JSON)
       completion(results, nil)
+    }
+  }
+  
+  private func responseHandler<ResultType>(completion: @escaping APICompletion<ResultType>, parser: @escaping APIResponseParser<ResultType>)  -> Moya.Completion {
+    return { result in
+      
+      switch result {
+      case let .success(moyaResponse):
+        do {
+          _ = try moyaResponse.filterSuccessfulStatusCodes()
+          let result = try parser(moyaResponse)
+          completion(result, nil)
+        } catch {
+          let errorDescription = (error as! LocalizedError).errorDescription
+          completion(nil, errorDescription)
+        }
+      case let.failure(error):
+        completion(nil, error.errorDescription)
+      }
     }
   }
 }
