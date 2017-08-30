@@ -31,12 +31,12 @@
 import Foundation
 import Moya
 
-struct CustomAuthPlugin: PluginType {
+struct AuthPlugin: PluginType {
   let header: String
   let token: String
 }
 
-extension CustomAuthPlugin {
+extension AuthPlugin {
   func prepare(_ request: URLRequest, target: TargetType) -> URLRequest {
     var request = request
     request.addValue(token, forHTTPHeaderField: header)// "X-Xapp-Token")
@@ -45,6 +45,6 @@ extension CustomAuthPlugin {
 }
 
 
-let ArtsyAuthPlugin = CustomAuthPlugin(header: "X-Xapp-Token", token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IiIsImV4cCI6MTUwMjg3Mzc5MywiaWF0IjoxNTAyMjY4OTkzLCJhdWQiOiI1OThhY2U0MDJhODkzYTU5NWM0MWJkYWMiLCJpc3MiOiJHcmF2aXR5IiwianRpIjoiNTk4YWNlNDE3NjIyZGQ1ZmI2MWUxMGYxIn0.fwDgu3gi6xa3s6X3YadrKJjoLiciDLP7-HUPk2j0dGM")
+let ArtsyAuthPlugin = AuthPlugin(header: "X-Xapp-Token", token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IiIsImV4cCI6MTUwMjg3Mzc5MywiaWF0IjoxNTAyMjY4OTkzLCJhdWQiOiI1OThhY2U0MDJhODkzYTU5NWM0MWJkYWMiLCJpc3MiOiJHcmF2aXR5IiwianRpIjoiNTk4YWNlNDE3NjIyZGQ1ZmI2MWUxMGYxIn0.fwDgu3gi6xa3s6X3YadrKJjoLiciDLP7-HUPk2j0dGM")
 
-let ImaggaAuthPlugin = CustomAuthPlugin(header: "Authorization", token: "Basic YWNjXzEzNzcxMjU0NDI2ZmRlZDo3MjVkYzMxNWFiZGY4Mjg2ZmM2M2ViZDhhMDBiNDBkYQ==")
+let ImaggaAuthPlugin = AuthPlugin(header: "Authorization", token: "Basic YWNjXzEzNzcxMjU0NDI2ZmRlZDo3MjVkYzMxNWFiZGY4Mjg2ZmM2M2ViZDhhMDBiNDBkYQ==")
