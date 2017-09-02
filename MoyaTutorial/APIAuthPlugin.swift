@@ -45,6 +45,6 @@ extension AuthPlugin {
 }
 
 
-let ArtsyAuthPlugin = AuthPlugin(header: "X-Xapp-Token", token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IiIsImV4cCI6MTUwMjg3Mzc5MywiaWF0IjoxNTAyMjY4OTkzLCJhdWQiOiI1OThhY2U0MDJhODkzYTU5NWM0MWJkYWMiLCJpc3MiOiJHcmF2aXR5IiwianRpIjoiNTk4YWNlNDE3NjIyZGQ1ZmI2MWUxMGYxIn0.fwDgu3gi6xa3s6X3YadrKJjoLiciDLP7-HUPk2j0dGM")
+let ArtsyAuthPlugin = AuthPlugin(header: "X-Xapp-Token", token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IiIsImV4cCI6MTUwNDY3OTU4NCwiaWF0IjoxNTA0MDc0Nzg0LCJhdWQiOiI1OThhY2U0MDJhODkzYTU5NWM0MWJkYWMiLCJpc3MiOiJHcmF2aXR5IiwianRpIjoiNTlhNjVjMjBjOWRjMjQwZWRkOTMzNmEwIn0.Vd6eJ1n1JWJd2IqDIKvyOJufiQ0V66FIET1yEyZdnSA")
 
 let ImaggaAuthPlugin = AuthPlugin(header: "Authorization", token: "Basic YWNjXzEzNzcxMjU0NDI2ZmRlZDo3MjVkYzMxNWFiZGY4Mjg2ZmM2M2ViZDhhMDBiNDBkYQ==")
