@@ -9,7 +9,9 @@
 import Foundation
 import Moya
 
-let artsyProvider = MoyaProvider<ArtsyService>(plugins:[ArtsyAuthPlugin])
+let artsyProvider = MoyaProvider<ArtsyService>(endpointClosure: ArtsyService.endpointClosure, plugins:[ArtsyAuthPlugin])
+
+//ArtsyService.endPointClosure
 
 enum ArtsyService {
   case search(String)
@@ -63,5 +65,16 @@ extension ArtsyService: TargetType {
     return .request
   }
   
+  static func endpointClosure(target: ArtsyService) -> Endpoint<ArtsyService>  {
+    switch target {
+    case let .hyperlink(url):
+      return Endpoint<ArtsyService>(url: url.absoluteString, sampleResponseClosure: {.networkResponse(200, target.sampleData)})
+    default:
+      return MoyaProvider.defaultEndpointMapping(for: target)
+    }
+  }
+  
 }
+
+
 
