@@ -44,7 +44,9 @@ class APIManager {
     self.imaggaService = imaggaService
   }
   
-  // MARK: - SEARCH
+  // MARK: - ARTSY API
+
+  // MARK: Search
   
   func search(_ term: String, completion: @escaping APICompletion<[SearchResult]>) {
     artsyService.request(.search(term), completion: responseHandler(completion: completion) { response in
@@ -53,7 +55,7 @@ class APIManager {
     })
   }
   
-  //MARK: - ARTWORKS
+  //MARK: Artworks
   
   func artworks(for result: SearchResult, completion: @escaping APICompletion<[Artwork]>) {
     artworksURL(for: result) { (url, _) in
@@ -71,8 +73,6 @@ class APIManager {
     })
   }
   
-  //MARK: - IMAGE DOWNLOAD
-  
   func image(for artwork: Artwork, completion: @escaping APICompletion<UIImage>) {
     artsyService.request(.hyperlink(artwork.imageURL), completion: responseHandler(completion: completion) { response in
       let image = try response.mapImage()
@@ -80,7 +80,9 @@ class APIManager {
     })
   }
   
-  //MARK: - TAGS
+  //MARK: - IMAGGA API
+  
+  //MARK: TAGS
   
   func tags(for image: UIImage, completion: @escaping APICompletion<[Tag]>) {
     upload(image: image) { (contentID, _) in
