@@ -34,7 +34,7 @@ import Moya
 let imaggaProvider = MoyaProvider<ImaggaService>(plugins: [ImaggaAuthPlugin])
 
 enum ImaggaService {
-  case upload(_ : UIImage)
+  case upload(UIImage)
   case tags(contentID: String)
 }
 
