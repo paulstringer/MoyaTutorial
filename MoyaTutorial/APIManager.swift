@@ -58,7 +58,7 @@ class APIManager {
   func artworks(for result: SearchResult, completion: @escaping APICompletion<[Artwork]>) {
     artist(for: result) { (artist, _) in
       let artworksURL = APIParser.artworksURL(for: artist)!
-      self.artsyService.request(.passthrough(artworksURL), completion: self.responseHandler(completion: completion) { response in
+      self.artsyService.request(.hyperlink(artworksURL), completion: self.responseHandler(completion: completion) { response in
         let JSON = try response.mapJSON() as? [String:Any]
         return APIParser.artworkResults(for: JSON)
       })
@@ -66,7 +66,7 @@ class APIManager {
   }
   
   private func artist(for result: SearchResult, completion: @escaping APICompletion<[String:Any]>) {
-    artsyService.request(.passthrough(result.href), completion: responseHandler(completion: completion) { response in
+    artsyService.request(.hyperlink(result.href), completion: responseHandler(completion: completion) { response in
       return try response.mapJSON() as? [String:Any]
     })
   }
@@ -74,7 +74,7 @@ class APIManager {
   //MARK: - IMAGE DOWNLOAD
   
   func image(for artwork: Artwork, completion: @escaping APICompletion<UIImage>) {
-    artsyService.request(.passthrough(artwork.imageURL), completion: responseHandler(completion: completion) { response in
+    artsyService.request(.hyperlink(artwork.imageURL), completion: responseHandler(completion: completion) { response in
       let image = try response.mapImage()
       return image
     })

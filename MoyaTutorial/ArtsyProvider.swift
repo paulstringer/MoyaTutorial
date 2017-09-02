@@ -35,7 +35,7 @@ let artsyProvider = MoyaProvider<ArtsyService>(endpointClosure: endpointClosure,
 
 enum ArtsyService {
   case search(_: String)
-  case passthrough(_: URL)
+  case hyperlink(_: URL)
 }
 
 extension ArtsyService: TargetType, AccessTokenAuthorizable {
@@ -48,7 +48,7 @@ extension ArtsyService: TargetType, AccessTokenAuthorizable {
     switch self {
     case .search:
       return "search"
-    case .passthrough:
+    case .hyperlink:
       return ""
     }
   }
@@ -61,7 +61,7 @@ extension ArtsyService: TargetType, AccessTokenAuthorizable {
     switch self {
     case let .search(term):
       return ["q":term.lowercased(),"type":"artist"]
-    case .passthrough:
+    case .hyperlink:
       return nil
     }
   }
@@ -70,14 +70,14 @@ extension ArtsyService: TargetType, AccessTokenAuthorizable {
     switch self {
     case .search:
       return URLEncoding.queryString
-    case .passthrough:
+    case .hyperlink:
       return URLEncoding.default
     }
   }
   
   var sampleData: Data {
     switch self {
-    case .passthrough:
+    case .hyperlink:
       return Data()
     case .search:
       return sampleData(forResource: "search")
@@ -96,7 +96,7 @@ extension ArtsyService: TargetType, AccessTokenAuthorizable {
 
 private let endpointClosure = { (target: ArtsyService) -> Endpoint<ArtsyService> in
   switch target {
-  case let .passthrough(href):
+  case let .hyperlink(href):
     return Endpoint<ArtsyService>(url: href.absoluteString, sampleResponseClosure: {.networkResponse(200, target.sampleData)})
   default:
     return MoyaProvider.defaultEndpointMapping(for: target)
