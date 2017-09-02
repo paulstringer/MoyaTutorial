@@ -208,7 +208,7 @@ private enum ApiAuthClient {
   var authenticationHeaders: [String:String] {
     switch self {
     case .Artsy:
-      return ["X-Xapp-Token": "YOUR-ARTSY-TOKEN"]   // <--- https://developers.artsy.net/start
+      return ["X-Xapp-Token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IiIsImV4cCI6MTUwNDY3OTU4NCwiaWF0IjoxNTA0MDc0Nzg0LCJhdWQiOiI1OThhY2U0MDJhODkzYTU5NWM0MWJkYWMiLCJpc3MiOiJHcmF2aXR5IiwianRpIjoiNTlhNjVjMjBjOWRjMjQwZWRkOTMzNmEwIn0.Vd6eJ1n1JWJd2IqDIKvyOJufiQ0V66FIET1yEyZdnSA"]   // <--- https://developers.artsy.net/start
     case .Imagga:
       return ["Authorization":"YOUR-IMAGGA-TOKEN"]  // <--- https://docs.imagga.com/#getting-started-signup
     }

@@ -21,6 +21,7 @@
 		8C4A49061F38D55200AC7991 /* Entities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C4A49051F38D55200AC7991 /* Entities.swift */; };
 		8C4A49081F399A9E00AC7991 /* SearchResultsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C4A49071F399A9E00AC7991 /* SearchResultsController.swift */; };
 		8CBAE05C1F51DBFF00F86BAD /* ArtsyProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CBAE05B1F51DBFF00F86BAD /* ArtsyProvider.swift */; };
+		8CD8B6A21F5692FD00340900 /* AuthPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CD8B6A11F5692FD00340900 /* AuthPlugin.swift */; };
 		E34F382F394925EE2E3C449B /* Pods_MoyaTutorialTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F570EF500C7012C24276321B /* Pods_MoyaTutorialTests.framework */; };
 /* End PBXBuildFile section */
 
@@ -54,6 +55,7 @@
 		8C4A49051F38D55200AC7991 /* Entities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Entities.swift; sourceTree = "<group>"; };
 		8C4A49071F399A9E00AC7991 /* SearchResultsController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchResultsController.swift; sourceTree = "<group>"; };
 		8CBAE05B1F51DBFF00F86BAD /* ArtsyProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ArtsyProvider.swift; sourceTree = "<group>"; };
+		8CD8B6A11F5692FD00340900 /* AuthPlugin.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AuthPlugin.swift; sourceTree = "<group>"; };
 		BF491B0802B6EBEFA05DD4C6 /* Pods-MoyaTutorial.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MoyaTutorial.release.xcconfig"; path = "Pods/Target Support Files/Pods-MoyaTutorial/Pods-MoyaTutorial.release.xcconfig"; sourceTree = "<group>"; };
 		D41EAF8EBACFE5B7A83E64C3 /* Pods-MoyaTutorialTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MoyaTutorialTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-MoyaTutorialTests/Pods-MoyaTutorialTests.debug.xcconfig"; sourceTree = "<group>"; };
 		EC58E9A6A2E2B57107BFB4BE /* Pods_MoyaTutorial.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MoyaTutorial.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -107,6 +109,7 @@
 				8C25AA3A1F3E086F00D2EBA1 /* APIParser.swift */,
 				8C4A49051F38D55200AC7991 /* Entities.swift */,
 				8CBAE05B1F51DBFF00F86BAD /* ArtsyProvider.swift */,
+				8CD8B6A11F5692FD00340900 /* AuthPlugin.swift */,
 			);
 			name = API;
 			sourceTree = "<group>";
@@ -379,6 +382,7 @@
 				8C4A49041F38D3F300AC7991 /* APIManager.swift in Sources */,
 				8C25AA3B1F3E086F00D2EBA1 /* APIParser.swift in Sources */,
 				8C25AA371F3D8E6200D2EBA1 /* ArtworkViewController.swift in Sources */,
+				8CD8B6A21F5692FD00340900 /* AuthPlugin.swift in Sources */,
 				8C4A48E61F38D3D000AC7991 /* ArtSearchViewController.swift in Sources */,
 				8C4A49061F38D55200AC7991 /* Entities.swift in Sources */,
 				8C25AA391F3DE0DE00D2EBA1 /* TagsViewController.swift in Sources */,
