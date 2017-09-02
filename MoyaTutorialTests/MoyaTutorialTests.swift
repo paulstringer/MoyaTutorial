@@ -32,5 +32,19 @@ import XCTest
 @testable import MoyaTutorial
 
 class MoyaTutorialTests: XCTestCase {
-    
+  
+  var manager: APIManager!
+  
+  override func setUp() {
+    manager = APIManager();
+  }
+  
+  func testSearchResultsResonseOK() {
+    var resultCount: Int?
+    manager.search("Warhol") { (results, _) in
+      resultCount = results?.count
+    }
+    XCTAssertEqual(1, resultCount)
+  }
+  
 }
