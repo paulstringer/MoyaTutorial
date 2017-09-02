@@ -9,7 +9,7 @@
 import Foundation
 import Moya
 
-let artsyProvider = MoyaProvider<ArtsyService>()
+let artsyProvider = MoyaProvider<ArtsyService>(plugins:[ArtsyAuthPlugin])
 
 enum ArtsyService {
   case search(String)
