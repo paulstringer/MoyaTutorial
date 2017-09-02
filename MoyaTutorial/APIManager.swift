@@ -67,6 +67,15 @@ class APIManager {
     })
   }
   
+   //MARK: IMAGE
+  
+  func image(for artwork: Artwork, completion: @escaping APICompletion<UIImage>) {
+    artsyProvider.request(.hyperlink(artwork.imageURL), completion: responseHandler(completion: completion) { response in
+      let image = try response.mapImage()
+      return image
+    })
+  }
+  
   private func responseHandler<ResultType>(completion: @escaping APICompletion<ResultType>, using parsing: @escaping ( [String:Any]? ) -> ResultType ) -> (DataResponse<Any>) -> Swift.Void {
     return { (response) in
       guard response.result.isSuccess else {
@@ -78,24 +87,8 @@ class APIManager {
     }
   }
   
-  
   //MARK: - IMAGGA API
-  
-  //MARK: IMAGE
-  
-  func image(for artwork: Artwork, completion: @escaping APICompletion<UIImage>) {
-    
-    let request = Alamofire.request(artwork.imageURL)
-    request.responseData { (response) in
-      guard response.result.isSuccess else {
-        completion(nil, response.result.debugDescription)
-        return
-      }
-      let image = UIImage(data: response.value!)
-      completion(image, nil)
-    }
-  }
-  
+
   func tags(for image: UIImage, completion: @escaping APICompletion<[Tag]>) {
     
     guard let imageData = UIImageJPEGRepresentation(image, 0.5) else {
