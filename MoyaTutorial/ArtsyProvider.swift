@@ -31,14 +31,14 @@
 import Foundation
 import Moya
 
-let artsyProvider = MoyaProvider<ArtsyService>(endpointClosure: endpointClosure, plugins: [ArtsyAuthPlugin])
+let artsyProvider = MoyaProvider<ArtsyService>(endpointClosure: ArtsyService.endpointClosure, plugins: [ArtsyAuthPlugin])
 
 enum ArtsyService {
   case search(_: String)
   case hyperlink(_: URL)
 }
 
-extension ArtsyService: TargetType, AccessTokenAuthorizable {
+extension ArtsyService: TargetType {
   
   var baseURL: URL {
     return try! "https://api.artsy.net/api/".asURL()
@@ -88,19 +88,15 @@ extension ArtsyService: TargetType, AccessTokenAuthorizable {
     return .request
   }
   
-  var shouldAuthorize: Bool {
-    return true
+  static func endpointClosure(target: ArtsyService) -> Endpoint<ArtsyService>  {
+    switch target {
+    case let .hyperlink(url):
+      return Endpoint<ArtsyService>(url: url.absoluteString, sampleResponseClosure: {.networkResponse(200, target.sampleData)})
+    default:
+      return MoyaProvider.defaultEndpointMapping(for: target)
+    }
   }
   
-}
-
-private let endpointClosure = { (target: ArtsyService) -> Endpoint<ArtsyService> in
-  switch target {
-  case let .hyperlink(href):
-    return Endpoint<ArtsyService>(url: href.absoluteString, sampleResponseClosure: {.networkResponse(200, target.sampleData)})
-  default:
-    return MoyaProvider.defaultEndpointMapping(for: target)
-  }
 }
 
 extension ArtsyService {
