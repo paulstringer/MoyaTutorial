@@ -56,18 +56,18 @@ class APIManager {
   //MARK: - ARTWORKS
   
   func artworks(for result: SearchResult, completion: @escaping APICompletion<[Artwork]>) {
-    artist(for: result) { (artist, _) in
-      let artworksURL = APIParser.artworksURL(for: artist)!
-      self.artsyService.request(.hyperlink(artworksURL), completion: self.responseHandler(completion: completion) { response in
+    artworksURL(for: result) { (url, _) in
+      self.artsyService.request(.hyperlink(url!), completion: self.responseHandler(completion: completion) { response in
         let JSON = try response.mapJSON() as? [String:Any]
         return APIParser.artworkResults(for: JSON)
       })
     }
   }
   
-  private func artist(for result: SearchResult, completion: @escaping APICompletion<[String:Any]>) {
+  private func artworksURL(for result: SearchResult, completion: @escaping APICompletion<URL>) {
     artsyService.request(.hyperlink(result.href), completion: responseHandler(completion: completion) { response in
-      return try response.mapJSON() as? [String:Any]
+      let JSON = try response.mapJSON() as? [String:Any]
+      return APIParser.artworksURL(for: JSON)
     })
   }
   
