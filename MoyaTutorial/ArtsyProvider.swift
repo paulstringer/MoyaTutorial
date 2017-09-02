@@ -13,6 +13,7 @@ let artsyProvider = MoyaProvider<ArtsyService>()
 
 enum ArtsyService {
   case search(String)
+  case hyperlink(URL)
 }
 
 extension ArtsyService: TargetType {
@@ -27,6 +28,8 @@ extension ArtsyService: TargetType {
     switch self {
     case .search:
       return "search"
+    case .hyperlink:
+      return ""
     }
   }
   
@@ -40,6 +43,8 @@ extension ArtsyService: TargetType {
     switch self {
     case let .search(term):
       return ["q":term, "type":"artist"]
+    default:
+      return nil
     }
   }
   
