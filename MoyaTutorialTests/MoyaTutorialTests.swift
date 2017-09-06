@@ -34,12 +34,12 @@ import Moya
 
 class MoyaTutorialTests: XCTestCase {
   
-  var artsyServiceFake: MoyaProvider<ArtsyService>!
+  var artsyProviderFake: MoyaProvider<ArtsyService>!
   var manager: APIManager!
   
   override func setUp() {
-    artsyServiceFake = MoyaProvider<ArtsyService>(stubClosure: MoyaProvider.immediatelyStub )
-    manager = APIManager(artsyService: artsyServiceFake)
+    artsyProviderFake = MoyaProvider<ArtsyService>(stubClosure: MoyaProvider.immediatelyStub )
+    manager = APIManager(artsyService: artsyProviderFake)
   }
   
   func testSearchResults() {
@@ -62,13 +62,13 @@ class MoyaTutorialTests: XCTestCase {
 
 class MoyaTutorialServerErrorTests: XCTestCase {
   
-  var artsyServiceFake: MoyaProvider<ArtsyService>!
+  var artsyProviderFake: MoyaProvider<ArtsyService>!
   var manager: APIManager!
   
   override func setUp() {
-    artsyServiceFake = MoyaProvider<ArtsyService>(endpointClosure: stubEndpointClosure(statusCode: 500),
+    artsyProviderFake = MoyaProvider<ArtsyService>(endpointClosure: stubEndpointClosure(statusCode: 500),
                                                   stubClosure: MoyaProvider.immediatelyStub)
-    manager = APIManager(artsyService: artsyServiceFake)
+    manager = APIManager(artsyService: artsyProviderFake)
   }
   
   func testSearchCompletesWithError() {
