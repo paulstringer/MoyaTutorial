@@ -31,14 +31,15 @@
 import Foundation
 import Moya
 
-let imaggaProvider = MoyaProvider<ImaggaService>(plugins: [ImaggaAuthPlugin])
+let imaggaAuthPlugin = AccessTokenPlugin(tokenClosure: "YOUR-IMAGGA-AUTH-TOKEN-DO-NOT-INCLUDE-BASIC-PREFIX")
+let imaggaProvider = MoyaProvider<ImaggaService>(plugins: [imaggaAuthPlugin])
 
 enum ImaggaService {
   case upload(UIImage)
   case tags(contentID: String)
 }
 
-extension ImaggaService: TargetType {
+extension ImaggaService: TargetType, AccessTokenAuthorizable {
   
   var baseURL: URL {
     return try! "http://api.imagga.com/v1/".asURL()
@@ -62,24 +63,6 @@ extension ImaggaService: TargetType {
     }
   }
   
-  var parameters: [String:Any]? {
-    switch self {
-    case .upload:
-      return nil
-    case let .tags(contentID):
-      return ["content":contentID]
-    }
-  }
-  
-  var parameterEncoding: ParameterEncoding {
-    switch self {
-    case .upload:
-      return URLEncoding.default
-    case .tags:
-      return URLEncoding.queryString
-    }
-  }
-  
   var sampleData: Data {
     return sampleData(forResource: "\(self)")
   }
@@ -88,13 +71,17 @@ extension ImaggaService: TargetType {
     switch self {
     case let .upload(image):
       return uploadImageDataTask(with: image)
-    case .tags:
-      return .request
+    case let .tags(contentID):
+      return .requestParameters(parameters: ["content":contentID], encoding: URLEncoding.queryString)
     }
   }
   
-  var shouldAuthorize: Bool {
-    return true
+  var headers: [String : String]? {
+    return nil;
+  }
+  
+  var authorizationType: AuthorizationType {
+    return .basic
   }
   
 }
@@ -108,7 +95,7 @@ extension ImaggaService {
                                      name: "imagefile",
                                      fileName: "image.jpg",
                                      mimeType: "image/jpeg")
-    return .upload(.multipart([formData]))
+    return .uploadMultipart([formData])
   }
   
   func sampleData(forResource resource: String) -> Data {

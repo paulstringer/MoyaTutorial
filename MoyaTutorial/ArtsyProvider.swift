@@ -31,7 +31,7 @@
 import Foundation
 import Moya
 
-let artsyProvider = MoyaProvider<ArtsyService>(endpointClosure: ArtsyService.endpointClosure, plugins: [ArtsyAuthPlugin])
+let artsyProvider = MoyaProvider<ArtsyService>(endpointClosure: ArtsyService.endpointClosure)
 
 enum ArtsyService {
   case search(_: String)
@@ -57,41 +57,33 @@ extension ArtsyService: TargetType {
     return .get
   }
   
-  var parameters: [String:Any]? {
-    switch self {
-    case let .search(term):
-      return ["q":term.lowercased(),"type":"artist"]
-    case .hyperlink:
-      return nil
-    }
-  }
-  
-  var parameterEncoding: ParameterEncoding {
-    switch self {
-    case .search:
-      return URLEncoding.queryString
-    case .hyperlink:
-      return URLEncoding.default
-    }
-  }
-  
   var sampleData: Data {
     switch self {
+    case .search:
+      return Data()
     case .hyperlink:
       return Data()
-    case .search:
-      return sampleData(forResource: "search")
     }
   }
   
   var task: Task {
-    return .request
+    switch self {
+    case let .search(term):
+      let parameters = ["q":term, "type":"artist"]
+      return .requestParameters(parameters: parameters, encoding: URLEncoding.queryString)
+    default:
+      return .requestPlain
+    }
+  }
+  
+  var headers: [String : String]? {
+    return ["X-Xapp-Token": "YOUR-ARTSY-AUTH-TOKEN];
   }
   
   static func endpointClosure(target: ArtsyService) -> Endpoint<ArtsyService>  {
     switch target {
     case let .hyperlink(url):
-      return Endpoint<ArtsyService>(url: url.absoluteString, sampleResponseClosure: {.networkResponse(200, target.sampleData)})
+      return Endpoint<ArtsyService>(url: url.absoluteString, sampleResponseClosure: {.networkResponse(200, target.sampleData)}, method: target.method, task: target.task, httpHeaderFields: target.headers)
     default:
       return MoyaProvider.defaultEndpointMapping(for: target)
     }
