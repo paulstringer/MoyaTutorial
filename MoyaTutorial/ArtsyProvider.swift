@@ -31,8 +31,6 @@
 import Foundation
 import Moya
 
-let artsyProvider = MoyaProvider<ArtsyService>(endpointClosure: ArtsyService.endpointClosure)
-
 enum ArtsyService {
   case search(_: String)
   case hyperlink(_: URL)
@@ -77,7 +75,7 @@ extension ArtsyService: TargetType {
   }
   
   var headers: [String : String]? {
-    return ["X-Xapp-Token": "YOUR-ARTSY-AUTH-TOKEN];
+    return ["X-Xapp-Token": "YOUR-ARTSY-AUTH-TOKEN"];
   }
   
   static func endpointClosure(target: ArtsyService) -> Endpoint<ArtsyService>  {

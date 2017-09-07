@@ -31,6 +31,9 @@
 import Foundation
 import Moya
 
+let imaggaAuthPlugin = AccessTokenPlugin(tokenClosure: "YOUR-IMAGGA-AUTH-TOKEN-DO-NOT-INCLUDE-BASIC-PREFIX")
+let imaggaProvider = MoyaProvider<ImaggaService>(plugins: [imaggaAuthPlugin])
+let artsyProvider = MoyaProvider<ArtsyService>(endpointClosure: ArtsyService.endpointClosure)
 typealias APICompletion<ResultType> = (_ results: ResultType?, _ error: String?) -> Swift.Void
 typealias APIResponseParser<ResultType> = (Response) throws -> ResultType?
 

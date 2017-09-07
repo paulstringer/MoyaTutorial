@@ -31,9 +31,6 @@
 import Foundation
 import Moya
 
-let imaggaAuthPlugin = AccessTokenPlugin(tokenClosure: "YOUR-IMAGGA-AUTH-TOKEN-DO-NOT-INCLUDE-BASIC-PREFIX")
-let imaggaProvider = MoyaProvider<ImaggaService>(plugins: [imaggaAuthPlugin])
-
 enum ImaggaService {
   case upload(UIImage)
   case tags(contentID: String)
