@@ -21,7 +21,7 @@
 		8C4A49061F38D55200AC7991 /* Entities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C4A49051F38D55200AC7991 /* Entities.swift */; };
 		8C4A49081F399A9E00AC7991 /* SearchResultsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C4A49071F399A9E00AC7991 /* SearchResultsController.swift */; };
 		8CE227E31F3F2DB500F852F2 /* ArtsyProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CE227E21F3F2DB500F852F2 /* ArtsyProvider.swift */; };
-		8CE227E91F3F327E00F852F2 /* search.json in Resources */ = {isa = PBXBuildFile; fileRef = 8CE227E41F3F31EB00F852F2 /* search.json */; };
+		8CE227E91F3F327E00F852F2 /* SearchSampleData.json in Resources */ = {isa = PBXBuildFile; fileRef = 8CE227E41F3F31EB00F852F2 /* SearchSampleData.json */; };
 		8CE227ED1F404B5C00F852F2 /* ImaggaProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CE227EC1F404B5C00F852F2 /* ImaggaProvider.swift */; };
 		E34F382F394925EE2E3C449B /* Pods_MoyaTutorialTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F570EF500C7012C24276321B /* Pods_MoyaTutorialTests.framework */; };
 /* End PBXBuildFile section */
@@ -56,7 +56,7 @@
 		8C4A49051F38D55200AC7991 /* Entities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Entities.swift; sourceTree = "<group>"; };
 		8C4A49071F399A9E00AC7991 /* SearchResultsController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchResultsController.swift; sourceTree = "<group>"; };
 		8CE227E21F3F2DB500F852F2 /* ArtsyProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ArtsyProvider.swift; sourceTree = "<group>"; };
-		8CE227E41F3F31EB00F852F2 /* search.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = search.json; path = SampleData/search.json; sourceTree = "<group>"; };
+		8CE227E41F3F31EB00F852F2 /* SearchSampleData.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = SearchSampleData.json; path = SampleData/SearchSampleData.json; sourceTree = "<group>"; };
 		8CE227EC1F404B5C00F852F2 /* ImaggaProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImaggaProvider.swift; sourceTree = "<group>"; };
 		BF491B0802B6EBEFA05DD4C6 /* Pods-MoyaTutorial.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MoyaTutorial.release.xcconfig"; path = "Pods/Target Support Files/Pods-MoyaTutorial/Pods-MoyaTutorial.release.xcconfig"; sourceTree = "<group>"; };
 		D41EAF8EBACFE5B7A83E64C3 /* Pods-MoyaTutorialTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MoyaTutorialTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-MoyaTutorialTests/Pods-MoyaTutorialTests.debug.xcconfig"; sourceTree = "<group>"; };
@@ -112,7 +112,7 @@
 				8CE227E21F3F2DB500F852F2 /* ArtsyProvider.swift */,
 				8CE227EC1F404B5C00F852F2 /* ImaggaProvider.swift */,
 				8C4A49051F38D55200AC7991 /* Entities.swift */,
-				8CE227E41F3F31EB00F852F2 /* search.json */,
+				8CE227E41F3F31EB00F852F2 /* SearchSampleData.json */,
 			);
 			name = API;
 			sourceTree = "<group>";
@@ -277,7 +277,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8C4A48EE1F38D3D000AC7991 /* LaunchScreen.storyboard in Resources */,
-				8CE227E91F3F327E00F852F2 /* search.json in Resources */,
+				8CE227E91F3F327E00F852F2 /* SearchSampleData.json in Resources */,
 				8C4A48EB1F38D3D000AC7991 /* Assets.xcassets in Resources */,
 				8C4A48E91F38D3D000AC7991 /* Main.storyboard in Resources */,
 			);

@@ -58,7 +58,7 @@ extension ArtsyService: TargetType {
   var sampleData: Data {
     switch self {
     case .search:
-      return Data()
+      return sampleData(forResource: "SearchSampleData")
     default:
       return Data()
     }
