@@ -46,7 +46,8 @@ extension ArtsyService: TargetType {
     switch self {
     case .search:
       return "search"
-    case .hyperlink:
+    // 1
+    default:
       return ""
     }
   }
@@ -59,7 +60,8 @@ extension ArtsyService: TargetType {
     switch self {
     case .search:
       return Data()
-    case .hyperlink:
+    // 2
+    default:
       return Data()
     }
   }
@@ -69,6 +71,7 @@ extension ArtsyService: TargetType {
     case let .search(term):
       let parameters = ["q":term, "type":"artist"]
       return .requestParameters(parameters: parameters, encoding: URLEncoding.queryString)
+	// 3
     default:
       return .requestPlain
     }
