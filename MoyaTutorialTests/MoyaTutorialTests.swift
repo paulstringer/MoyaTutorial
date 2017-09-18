@@ -71,7 +71,7 @@ class MoyaTutorialServerErrorTests: XCTestCase {
     manager = APIManager(artsyProvider: artsyProviderFake)
   }
   
-  func testSearchCompletesWithError() {
+  func testSearchResultsResponseServerError() {
     var searchResponse: [SearchResult]?, searchError: String?
     manager.search("") { (response, error) in
       searchResponse = response; searchError = error
