@@ -167,7 +167,7 @@ fileprivate struct APIRequest {
   
   static func tagsRequest(for imaggaContentID: String) -> DataRequest {
     let url = try! "http://api.imagga.com/v1/tagging".asURL()
-    return APIRequest.authenticatedRequest(for: url, client: ApiAuthClient.Imagga, parameters: ["content" : imaggaContentID])
+    return APIRequest.authenticatedRequest(for: url, client: ApiAuthClient.Imagga, parameters: ["content":imaggaContentID])
   }
   
   //MARK: - PRIVATE UTILITIES

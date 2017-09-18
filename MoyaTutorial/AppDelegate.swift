@@ -37,7 +37,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 extension UIViewController {
   
-  func handleFailure(title: String = "Network Error", description :String?) {
+  func handleFailure(title: String = "Network Error", description: String?) {
     let alert = UIAlertController(title: title, message: description, preferredStyle: .alert)
     alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
     present(alert, animated: true, completion: nil)
