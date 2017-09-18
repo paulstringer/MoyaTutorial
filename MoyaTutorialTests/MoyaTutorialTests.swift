@@ -39,7 +39,7 @@ class MoyaTutorialTests: XCTestCase {
   
   override func setUp() {
     artsyProviderFake = MoyaProvider<ArtsyService>(stubClosure: MoyaProvider.immediatelyStub )
-    manager = APIManager(artsyService: artsyProviderFake)
+    manager = APIManager(artsyProvider: artsyProviderFake)
   }
   
   func testSearchResults() {
@@ -68,7 +68,7 @@ class MoyaTutorialServerErrorTests: XCTestCase {
   override func setUp() {
     artsyProviderFake = MoyaProvider<ArtsyService>(endpointClosure: stubEndpointClosure(statusCode: 500),
                                                   stubClosure: MoyaProvider.immediatelyStub)
-    manager = APIManager(artsyService: artsyProviderFake)
+    manager = APIManager(artsyProvider: artsyProviderFake)
   }
   
   func testSearchCompletesWithError() {
@@ -90,7 +90,7 @@ func stubEndpointClosure(statusCode: Int) -> (ArtsyService) -> Endpoint<ArtsySer
       return .networkResponse(statusCode, target.sampleData)
     }
     let url = MoyaProvider.defaultEndpointMapping(for: target).url
-    return Endpoint<ArtsyService>(url: url, sampleResponseClosure: sampleResponseClosure, method: target.method, parameters: target.parameters)
+    return Endpoint<ArtsyService>(url: url, sampleResponseClosure: sampleResponseClosure, method: target.method, task: target.task)
   }
   
 }

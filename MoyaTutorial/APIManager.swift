@@ -39,12 +39,12 @@ typealias APIResponseParser<ResultType> = (Response) throws -> ResultType?
 
 class APIManager {
   
-  let artsyService: MoyaProvider<ArtsyService>
-  let imaggaService: MoyaProvider<ImaggaService>
+  let _artsyProvider: MoyaProvider<ArtsyService>
+  let _imaggaProvider: MoyaProvider<ImaggaService>
   
-  init(artsyService: MoyaProvider<ArtsyService> = artsyProvider, imaggaService : MoyaProvider<ImaggaService> = imaggaProvider) {
-    self.artsyService = artsyService
-    self.imaggaService = imaggaService
+  init(artsyProvider: MoyaProvider<ArtsyService> = artsyProvider, imaggaProvider : MoyaProvider<ImaggaService> = imaggaProvider) {
+    self._artsyProvider = artsyProvider
+    self._imaggaProvider = imaggaProvider
   }
   
   // MARK: - ARTSY API
@@ -52,7 +52,7 @@ class APIManager {
   // MARK: Search
   
   func search(_ term: String, completion: @escaping APICompletion<[SearchResult]>) {
-    artsyService.request(.search(term), completion: responseHandler(completion: completion) { response in
+    _artsyProvider.request(.search(term), completion: responseHandler(completion: completion) { response in
       let JSON = try response.mapJSON() as? [String:Any]
       return APIParser.searchResults(for: JSON)
     })
@@ -62,7 +62,7 @@ class APIManager {
   
   func artworks(for result: SearchResult, completion: @escaping APICompletion<[Artwork]>) {
     artworksURL(for: result) { (url, _) in
-      self.artsyService.request(.hyperlink(url!), completion: self.responseHandler(completion: completion) { response in
+      self._artsyProvider.request(.hyperlink(url!), completion: self.responseHandler(completion: completion) { response in
         let JSON = try response.mapJSON() as? [String:Any]
         return APIParser.artworkResults(for: JSON)
       })
@@ -70,14 +70,14 @@ class APIManager {
   }
   
   private func artworksURL(for result: SearchResult, completion: @escaping APICompletion<URL>) {
-    artsyService.request(.hyperlink(result.href), completion: responseHandler(completion: completion) { response in
+    _artsyProvider.request(.hyperlink(result.href), completion: responseHandler(completion: completion) { response in
       let JSON = try response.mapJSON() as? [String:Any]
       return APIParser.artworksURL(for: JSON)
     })
   }
   
   func image(for artwork: Artwork, completion: @escaping APICompletion<UIImage>) {
-    artsyService.request(.hyperlink(artwork.imageURL), completion: responseHandler(completion: completion) { response in
+    _artsyProvider.request(.hyperlink(artwork.imageURL), completion: responseHandler(completion: completion) { response in
       let image = try response.mapImage()
       return image
     })
@@ -89,7 +89,7 @@ class APIManager {
   
   func tags(for image: UIImage, completion: @escaping APICompletion<[Tag]>) {
     upload(image: image) { (contentID, _) in
-      self.imaggaService.request(.tags(contentID: contentID!), completion: self.responseHandler(completion: completion) { response in
+      self._imaggaProvider.request(.tags(contentID: contentID!), completion: self.responseHandler(completion: completion) { response in
         let JSON = try response.mapJSON() as? [String:Any]
         return APIParser.tagResults(for: JSON)
       })
@@ -97,7 +97,7 @@ class APIManager {
   }
   
   private func upload(image: UIImage, completion: @escaping APICompletion<String>) {
-    imaggaService.request(.upload(image), completion: responseHandler(completion: completion) { response in
+    _imaggaProvider.request(.upload(image), completion: responseHandler(completion: completion) { response in
       let JSON = try response.mapJSON() as? [String:Any]
       let contentID = APIParser.imaggaContentID(for: JSON)!
       return contentID
